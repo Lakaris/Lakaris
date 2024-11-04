@@ -13,28 +13,95 @@
             justify-content: center;
             min-height: 100vh;
             text-align: center;
+            transition: margin-left 0.3s ease;
         }
 
         /* Styling for the grid container */
         .grid-container {
             display: grid;
-            gap: 10px;
             margin-top: 20px;
+            margin-left: 0; /* Default to centered */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive column layout */
         }
 
-        /* Styling for each grid cell */
+        /* Styling for each grid cell with 2.5:3.5 height-to-width ratio */
         .grid-item {
             background-color: white;
             border: 2px solid black;
             border-radius: 10px;
-            width: 100px;
-            height: 100px;
+            width: 150px;  /* 2.5 ratio */
+            height: 210px; /* 3.5 ratio */
+            cursor: pointer;
+            position: relative; 
+            overflow: hidden; /* Hide overflow to constrain images */
+            display: flex; /* Use flex to center the image */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+        }
+
+        /* Change Grid Size button styling */
+        #changeGridButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            padding: 10px 20px;
+            font-size: 1rem;
         }
 
         button {
             padding: 10px 20px;
             font-size: 1rem;
             margin-top: 10px;
+        }
+
+        /* Overlay and popup styling */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        #popup {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* Sidebar styling */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: -60%; /* Hide sidebar off-screen to the left */
+            width: 50%;
+            height: 100%;
+            background-color: #f0f0f0;
+            border-right: 2px solid black;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        #sidebar.open {
+            left: 0; /* Slide in the sidebar */
+        }
+
+        /* Input styling */
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 1.5rem;
         }
 
         /* Remove arrows for number inputs on all browsers */
@@ -47,25 +114,92 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
+        /* Adjust the image styling for consistent sizes */
+        .card-image {
+            width: 150px; /* Fixed width */
+            height: 210px; /* Fixed height */
+            object-fit: cover; /* Ensures the image covers the area without stretching */
+            margin: 5px; /* Add margin between images */
+        }
+
+        /* Styling for the results container with scroll */
+        #searchResults {
+            max-height: calc(100% - 100px);
+            overflow-y: auto;
+            padding: 5px;
+            display: flex; /* Change to flex to manage spacing */
+            flex-wrap: wrap; /* Allow images to wrap */
+            justify-content: flex-start; /* Align images to the start */
+            gap: 10px; /* Space between images */
+            width: calc(100% - 40px);
+            border: none;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <label>
-        Rows: <input type="text" id="rows" placeholder="Enter rows">
-    </label>
-    <label>
-        Columns: <input type="text" id="columns" placeholder="Enter columns">
-    </label>
-    <button onclick="generateGrid()">Generate Grid</button>
-    <div id="grid" class="grid-container"></div>
-</div>
+    <div class="container" id="mainContainer">
+        <button id="changeGridButton" onclick="openPopup()">Change Grid Size</button>
+        <div id="grid" class="grid-container"></div>
+    </div>
 
-<script>
-    function generateGrid() {
-        const rows = parseInt(document.getElementById('rows').value);
-        const columns = parseInt(document.getElementById('columns').value);
+    <!-- Popup Overlay -->
+    <div id="overlay">
+        <div id="popup">
+            <h2>Change Grid Size</h2>
+            <label>
+                Rows: <input type="text" id="rows" placeholder="Enter rows">
+            </label>
+            <label>
+                Columns: <input type="text" id="columns" placeholder="Enter columns">
+            </label>
+            <label>
+                Gap: <input type="text" id="gap" placeholder="Enter gap (px)" value="10">
+            </label>
+            <button onclick="generateGrid()">Generate Grid</button>
+            <button onclick="closePopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Sidebar for searching -->
+    <div id="sidebar">
+        <h2>Search</h2>
+        <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
+        <button onclick="searchName()">Search</button>
+        <button onclick="closeSidebar()">Close</button>
+        <div id="searchResults"></div>
+    </div>
+
+    <script>
+        let selectedCell = null;
+    const gridData = []; // Array to hold the current state of the grid
+    let gapSize = 10; // Default gap size
+
+function openPopup() {
+    closeSidebar(); // Close sidebar if it's open
+    document.getElementById('overlay').style.display = 'flex'; // Show overlay
+}
+
+function closePopup() {
+    document.getElementById('overlay').style.display = 'none'; // Close overlay
+    // No need to call closeSidebar() here since you want to keep sidebar behavior separate
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open'); // Hide sidebar
+    document.getElementById('mainContainer').style.marginLeft = '0'; // Restore main container position
+    selectedCell = null; // Reset selected cell
+}
+
+function generateGrid() {
+    const rows = parseInt(document.getElementById('rows').value);
+    const columns = parseInt(document.getElementById('columns').value);
+        const gap = parseInt(document.getElementById('gap').value) || 0; // Get gap value or default to 0
         const gridContainer = document.getElementById('grid');
 
         // Ensure rows and columns are valid numbers
@@ -74,18 +208,121 @@
             return;
         }
 
-        gridContainer.innerHTML = ''; // Clear any existing grid items
+        // Clear previous grid data
+        gridData.length = 0; // Reset grid data
 
-        // Set up the grid layout based on the user input
-        gridContainer.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
-        gridContainer.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+        // Adjust gridData based on new dimensions
+        for (let r = 0; r < rows; r++) {
+            gridData[r] = new Array(columns).fill(null); // Fill each row with nulls
+        }
 
-        // Create the grid items
-        const totalCells = rows * columns;
-        for (let i = 0; i < totalCells; i++) {
-            const gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-            gridContainer.appendChild(gridItem);
+        // Update the grid display
+        updateGridDisplay(gap); // Pass the gap size to update the grid
+
+        closePopup(); // Close the popup after generating the grid
+    }
+
+    function updateGridDisplay(gap) {
+        const gridContainer = document.getElementById('grid');
+        gridContainer.innerHTML = ''; // Clear existing grid
+
+        // Set the grid template columns based on the number of columns
+        gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`; // Responsive column layout
+        gridContainer.style.gap = `${gap}px`; // Set the gap between grid cells
+
+        for (let r = 0; r < gridData.length; r++) {
+            for (let c = 0; c < gridData[r].length; c++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item'; // Use grid-item class for styling
+                gridItem.onclick = function () {
+                    openSidebar(gridItem); // Open sidebar on click
+                };
+
+                // If there's an image in the grid, create an image element
+                if (gridData[r][c]) {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = gridData[r][c];
+                    imgElement.alt = 'Card Image';
+                    imgElement.className = 'card-image'; // Use card-image class for styling
+                    gridItem.appendChild(imgElement); // Add the image to the grid item
+                }
+
+                gridContainer.appendChild(gridItem); // Add the grid item to the container
+            }
+        }
+    }
+
+    function openSidebar(gridItem) {
+    selectedCell = { row: getRowIndex(gridItem), column: getColumnIndex(gridItem) }; // Store the selected cell's position
+    document.getElementById('sidebar').classList.add('open'); // Show sidebar
+    document.getElementById('mainContainer').style.marginLeft = '50%'; // Shift main container when sidebar opens
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open'); // Hide sidebar
+    document.getElementById('mainContainer').style.marginLeft = '0'; // Restore main container position
+    selectedCell = null; // Reset selected cell
+}
+
+function getRowIndex(gridItem) {
+    const gridContainer = document.getElementById('grid');
+    return Math.floor(Array.from(gridContainer.children).indexOf(gridItem) / gridData[0].length);
+}
+
+function getColumnIndex(gridItem) {
+    const gridContainer = document.getElementById('grid');
+    return Array.from(gridContainer.children).indexOf(gridItem) % gridData[0].length;
+}
+
+async function searchName() {
+    const query = document.getElementById('searchInput').value.trim();
+    const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = ''; // Clear previous results
+
+        if (!query) {
+            alert("Please enter a name to search.");
+            return;
+        }
+
+        const apiUrl = 'https://api.pokemontcg.io/v2/cards';
+        const apiKey = '29cb7c82-278a-4569-a6c7-c4854ab76da4'; // Your actual API key
+
+        try {
+            const response = await fetch(`${apiUrl}?q=name:${query}`, {
+                method: 'GET',
+                headers: {
+                    'X-Api-Key': apiKey
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch data from the Pokémon API.");
+            }
+
+            const data = await response.json();
+            if (data.data && data.data.length > 0) {
+                data.data.forEach(card => {
+                    const cardImage = document.createElement('img');
+                    cardImage.src = card.images.small; // Use small image size for results
+                    cardImage.alt = 'Card Image';
+                    cardImage.className = 'card-image'; // Apply consistent size styling
+                    cardImage.onclick = function() {
+                        if (selectedCell) {
+                            const { row, column } = selectedCell;
+                            gridData[row][column] = card.images.small; // Update grid data with the selected image
+                            updateGridDisplay(gapSize); // Refresh grid display with current gap size
+                        }
+                        closeSidebar(); // Close sidebar after selection
+                    };
+
+                    resultsContainer.appendChild(cardImage); // Append image to the result item
+                });
+            } else {
+                resultsContainer.innerText = 'No results found.';
+            }
+        } catch (error) {
+            console.error(error);
+            resultsContainer.innerText = 'An error occurred while searching.';
         }
     }
 </script>
