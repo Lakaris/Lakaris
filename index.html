@@ -1,7 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3x3 Grid Generator</title>
+    <style>
+        /* Styling for the grid container */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Styling for each grid cell */
+        .grid-item {
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border-radius: 5px;
+        }
+
+        /* Center the content on the page */
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+
+<div class="container">
+    <button onclick="generateGrid()">Generate 3x3 Grid</button>
+    <div id="grid" class="grid-container"></div>
+</div>
+
+<script>
+    function generateGrid() {
+        const gridContainer = document.getElementById('grid');
+        gridContainer.innerHTML = ''; // Clear any existing grid items
+
+        for (let i = 1; i <= 9; i++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.textContent = i; // Optional: number each cell
+            gridContainer.appendChild(gridItem);
+        }
+    }
+</script>
+
 </body>
 </html>
