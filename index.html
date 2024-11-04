@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+<body onload="initializeGrid()">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Grid Generator</title>
     <style>
-        /* Center the content on the page */
 .container {
     display: flex;
-    flex-direction: column;
-    align-items: center; /* Center the buttons horizontally */
-    justify-content: flex-start; /* Align to the top */
-    /* Remove min-height if causing issues */
-    /* min-height: 100vh; */ 
-    text-align: center;
+    align-items: flex-start; /* Aligns items at the top */
+    justify-content: center; /* Center the items horizontally */
+    text-align: center; 
 }
 
-        /* Styling for the grid container */
 .grid-container {
     display: grid;
-    margin-top: 0; /* Set margin-top to 0 to start the grid at the top */
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive column layout */
+    margin-top: 0; 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
 }
 
 #loadOverlay {
@@ -30,7 +26,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    display: none; /* Hidden by default */
+    display: none; 
     justify-content: center;
     align-items: center;
     z-index: 999;
@@ -44,51 +40,48 @@
     text-align: center;
 }
 
-        /* Styling for each grid cell with 2.5:3.5 height-to-width ratio */
         .grid-item {
             background-color: white;
             border: 2px solid black;
             border-radius: 10px;
-            width: 150px;  /* 2.5 ratio */
-            height: 210px; /* 3.5 ratio */
+            width: 150px;  
+            height: 210px; 
             cursor: pointer;
             position: relative; 
-            overflow: hidden; /* Hide overflow to constrain images */
-            display: flex; /* Use flex to center the image */
-            align-items: center; /* Center vertically */
-            justify-content: center; /* Center horizontally */
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Change Grid Size button styling */
         #changeGridButton {
             padding: 10px 20px;
             font-size: 1rem;
-            margin-bottom: 10px; /* Space below the Change Grid Size button */
+            margin-bottom: 10px;
         }
 
         button {
             padding: 10px 20px;
             font-size: 1rem;
-            margin-top: 10px; /* Space above other buttons */
+            margin-top: 10px; 
         }
 
 .button-container {
-    position: fixed; /* Fixes the button container to the top right */
-    top: 20px; /* Distance from the top of the viewport */
-    right: 20px; /* Distance from the right side of the viewport */
+    position: fixed; 
+    top: 20px; 
+    right: 20px; 
     display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: flex-start; /* Align buttons to the left */
-    width: auto; /* Let it be auto width */
-    margin: 0; /* Remove margin since it's now fixed */
-    z-index: 100; /* Ensure it appears above other elements */
+    flex-direction: column; 
+    align-items: flex-start; 
+    width: auto; 
+    margin: 0; 
+    z-index: 100; 
 }
 
 .button-container button {
-    margin-bottom: 5px; /* Space between buttons */
+    margin-bottom: 5px; 
 }
 
-/* Overlay and popup styling */
 #overlay {
     position: fixed;
     top: 0;
@@ -110,11 +103,10 @@
     text-align: center;
 }
 
-/* Sidebar styling */
 #sidebar {
     position: fixed;
     top: 0;
-    left: -60%; /* Hide sidebar off-screen to the left */
+    left: -60%; 
     width: 50%;
     height: 100%;
     background-color: #f0f0f0;
@@ -126,10 +118,9 @@
 }
 
 #sidebar.open {
-    left: 0; /* Slide in the sidebar */
+    left: 0; 
 }
 
-/* Input styling */
 input[type="text"] {
     width: calc(100% - 20px);
     padding: 15px;
@@ -137,7 +128,6 @@ input[type="text"] {
     font-size: 1.5rem;
 }
 
-/* Remove arrows for number inputs on all browsers */
 input[type="text"] {
     -moz-appearance: textfield;
 }
@@ -148,28 +138,26 @@ input[type="text"]::-webkit-inner-spin-button {
     margin: 0;
 }
 
-/* Adjust the image styling for consistent sizes */
 .card-image {
-    width: 150px; /* Fixed width */
-    height: 210px; /* Fixed height */
-    object-fit: cover; /* Ensures the image covers the area without stretching */
-    margin: 5px; /* Add margin between images */
+    width: 150px; 
+    height: 210px; 
+    object-fit: cover;
+    margin: 5px; 
 }
 
 .selected-cell {
-    border: 2px dashed red; /* Change border style and color to indicate selection */
-    background-color: rgba(255, 0, 0, 0.1); /* Light red background for better visibility */
+    border: 2px dashed red; 
+    background-color: rgba(255, 0, 0, 0.1); 
 }
 
-/* Styling for the results container with scroll */
 #searchResults {
     max-height: calc(100% - 100px);
     overflow-y: auto;
     padding: 5px;
-    display: flex; /* Change to flex to manage spacing */
-    flex-wrap: wrap; /* Allow images to wrap */
-    justify-content: flex-start; /* Align images to the start */
-    gap: 10px; /* Space between images */
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: flex-start; 
+    gap: 10px; 
     width: calc(100% - 40px);
     border: none;
 }
@@ -187,10 +175,12 @@ input[type="text"]::-webkit-inner-spin-button {
             <button id="saveButton" onclick="saveGrid()">Save Grid</button>
             <button id="loadButton" onclick="loadGrid()">Load Grid</button>
         </div>
+        <button id="previousPageButton" onclick="previousPage()" style="margin-right: 10px;">Previous Page</button>
         <div id="grid" class="grid-container"></div>
+        <button id="nextPageButton" onclick="nextPage()" style="margin-left: 10px;">Next Page</button>
     </div>
-
-    <!-- Popup Overlay -->
+    <div id="pageNumber" style="text-align: center; margin-top: 20px;">Page 1</div>
+    
     <div id="overlay">
         <div id="popup">
             <h2>Change Grid Size</h2>
@@ -208,7 +198,7 @@ input[type="text"]::-webkit-inner-spin-button {
         </div>
     </div>
 
-    <!-- Overlay for loading grids -->
+    
     <div id="loadOverlay">
         <div id="loadPopup">
             <h2>Load Saved Grids</h2>
@@ -217,7 +207,7 @@ input[type="text"]::-webkit-inner-spin-button {
         </div>
     </div>
 
-    <!-- Sidebar for searching -->
+    
     <div id="sidebar">
         <h2>Search</h2>
         <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
@@ -228,111 +218,114 @@ input[type="text"]::-webkit-inner-spin-button {
 
     <script>
         let selectedCell = null;
-        const gridData = []; // Array to hold the current state of the grid
-        let gapSize = 10; // Default gap size
+        const gridData = []; 
+        let gapSize = 10; 
+        let currentPage = 1;
 
         function openPopup() {
-            closeSidebar(); // Close sidebar if it's open
-            document.getElementById('overlay').style.display = 'flex'; // Show overlay
+            closeSidebar(); 
+            document.getElementById('overlay').style.display = 'flex'; 
         }
 
         function closePopup() {
-            document.getElementById('overlay').style.display = 'none'; // Close overlay
+            document.getElementById('overlay').style.display = 'none'; 
         }
 
-        function closeSidebar() {
-            const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
-            if (previousSelectedCell) {
-        previousSelectedCell.classList.remove('selected-cell'); // Remove highlight from previous selection
+function closeSidebar() {
+    const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
+    if (previousSelectedCell) {
+        previousSelectedCell.classList.remove('selected-cell'); 
     }
-    document.getElementById('sidebar').classList.remove('open'); // Hide sidebar
-    document.getElementById('mainContainer').style.marginLeft = '0'; // Restore main container position
-    selectedCell = null; // Reset selected cell
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('mainContainer').style.marginLeft = '0'; 
+    selectedCell = null;
+
+    // Show the page number and navigation buttons when the sidebar closes
+    document.getElementById('pageNumber').style.display = 'block'; 
+    document.getElementById('previousPageButton').style.display = 'inline-block'; 
+    document.getElementById('nextPageButton').style.display = 'inline-block'; 
 }
 
 function generateGrid() {
-    const rows = parseInt(document.getElementById('rows').value);
-    const columns = parseInt(document.getElementById('columns').value);
-    const gap = parseInt(document.getElementById('gap').value) || 0; // Get gap value or default to 0
+    // Set default rows and columns to 3
+    const rows = parseInt(document.getElementById('rows').value) || 3;
+    const columns = parseInt(document.getElementById('columns').value) || 3;
+    const gap = parseInt(document.getElementById('gap').value) || 10; 
 
-    // Ensure rows and columns are valid numbers
     if (isNaN(rows) || isNaN(columns) || rows < 1 || columns < 1) {
         alert("Please enter valid numbers for rows and columns.");
         return;
     }
 
-    // Create a new grid with preserved data
     const newGridData = Array.from({ length: rows }, (_, r) => {
         return Array.from({ length: columns }, (_, c) => {
-            // If the new grid position exists in the old grid data, keep it
             return (gridData[r] && gridData[r][c]) ? gridData[r][c] : null;
         });
     });
 
-    // Update grid data with the new grid
-    gridData.length = 0; // Clear the old grid data
+    gridData.length = 0; 
     newGridData.forEach(row => gridData.push(row));
 
-    // Update the grid display
-    updateGridDisplay(gap); // Pass the gap size to update the grid
+    updateGridDisplay(gap); 
 
-    closePopup(); // Close the popup after generating the grid
+    closePopup(); 
 }
 
 function updateGridDisplay(gap) {
     const gridContainer = document.getElementById('grid');
-            gridContainer.innerHTML = ''; // Clear existing grid
+            gridContainer.innerHTML = ''; 
 
-            // Set the grid template columns based on the number of columns
-            gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`; // Responsive column layout
-            gridContainer.style.gap = `${gap}px`; // Set the gap between grid cells
+            gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`;
+            gridContainer.style.gap = `${gap}px`;
 
             for (let r = 0; r < gridData.length; r++) {
                 for (let c = 0; c < gridData[r].length; c++) {
                     const gridItem = document.createElement('div');
-                    gridItem.className = 'grid-item'; // Use grid-item class for styling
+                    gridItem.className = 'grid-item';
                     gridItem.onclick = function () {
-                        openSidebar(gridItem); // Open sidebar on click
+                        openSidebar(gridItem);
                     };
 
-                    // If there's an image in the grid, create an image element
                     if (gridData[r][c]) {
                         const imgElement = document.createElement('img');
                         imgElement.src = gridData[r][c].imageUrl;
                         imgElement.alt = gridData[r][c].name;
-                        imgElement.className = 'card-image'; // Use card-image class for styling
+                        imgElement.className = 'card-image'; 
                         gridItem.appendChild(imgElement);
                     }
 
-                    gridContainer.appendChild(gridItem); // Add grid item to the grid
+                    gridContainer.appendChild(gridItem);
                 }
             }
         }
 
-        function openSidebar(gridItem) {
-    // Remove the highlight from previously selected cell, if any
-            const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
-            if (previousSelectedCell) {
-        previousSelectedCell.classList.remove('selected-cell'); // Remove highlight from previous selection
+function openSidebar(gridItem) {
+    const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
+    if (previousSelectedCell) {
+        previousSelectedCell.classList.remove('selected-cell');
     }
 
-    gridItem.classList.add('selected-cell'); // Highlight the clicked grid item
+    gridItem.classList.add('selected-cell'); 
     const sidebar = document.getElementById('sidebar');
-    sidebar.classList.add('open'); // Slide in the sidebar
-    document.getElementById('mainContainer').style.marginLeft = '50%'; // Shift main content
-    selectedCell = gridItem; // Save the currently selected grid item
+    sidebar.classList.add('open'); 
+    document.getElementById('mainContainer').style.marginLeft = '50%'; 
+    selectedCell = gridItem; 
+
+    // Hide the page number and navigation buttons when the sidebar opens
+    document.getElementById('pageNumber').style.display = 'none'; 
+    document.getElementById('previousPageButton').style.display = 'none'; 
+    document.getElementById('nextPageButton').style.display = 'none'; 
 }
 
-
 function searchName() {
-            const searchInput = document.getElementById('searchInput').value; // Get the search input value
-            const url = `https://api.pokemontcg.io/v2/cards?q=name:${searchInput}`; // Construct API URL
+            const searchInput = document.getElementById('searchInput').value; 
+            const url = `https://api.pokemontcg.io/v2/cards?q=name:${searchInput}`; 
 
             fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Api-Key': '29cb7c82-278a-4569-a6c7-c4854ab76da4' // Use your API key
+                    'X-Api-Key': '29cb7c82-278a-4569-a6c7-c4854ab76da4'
                 }
             })
             .then(response => {
@@ -342,7 +335,7 @@ function searchName() {
                 return response.json();
             })
             .then(data => {
-                displaySearchResults(data); // Call function to display search results
+                displaySearchResults(data); 
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
@@ -351,46 +344,42 @@ function searchName() {
 
         function displaySearchResults(data) {
             const searchResults = document.getElementById('searchResults');
-    searchResults.innerHTML = ''; // Clear previous results
+    searchResults.innerHTML = ''; 
 
     if (data.data && data.data.length > 0) {
         data.data.forEach(card => {
             const cardImg = document.createElement('img');
-            cardImg.src = card.images.small; // Use the small image URL
+            cardImg.src = card.images.small; 
             cardImg.alt = card.name;
-            cardImg.className = 'card-image'; // Use card-image class for styling
+            cardImg.className = 'card-image';
             cardImg.onclick = function() {
-                addCardToGrid(card); // Add card to the grid on click
-                // Optionally close the sidebar after adding the card
-                // closeSidebar(); 
+                addCardToGrid(card); 
             };
 
-            searchResults.appendChild(cardImg); // Add each card image to the results
+            searchResults.appendChild(cardImg); 
         });
     } else {
-        searchResults.innerHTML = '<p>No results found.</p>'; // Message if no results
+        searchResults.innerHTML = '<p>No results found.</p>'; 
     }
 }
 
 
 function addCardToGrid(card) {
     if (selectedCell) {
-        const gridItem = selectedCell; // Get the currently selected grid item
-        gridItem.innerHTML = ''; // Clear the current content of the grid item
+        const gridItem = selectedCell; 
+        gridItem.innerHTML = ''; 
         const imgElement = document.createElement('img');
-        imgElement.src = card.images.small; // Use the small image URL
+        imgElement.src = card.images.small; 
         imgElement.alt = card.name;
-        imgElement.className = 'card-image'; // Use card-image class for styling
-        gridItem.appendChild(imgElement); // Add the card image to the grid item
+        imgElement.className = 'card-image'; 
+        gridItem.appendChild(imgElement); 
 
-        // Store card data in gridData for persistence
-        const rowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length); // Get the row index
-        const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; // Get the column index
-        gridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; // Add card data to grid
+        const rowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length); 
+        const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; 
+        gridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
 
-        // Remove highlight from selected cell after adding the card
         gridItem.classList.remove('selected-cell'); 
-        checkGridState(); // Update button visibility
+        checkGridState(); 
     }
 }
 
@@ -402,92 +391,114 @@ function checkGridState() {
     const loadButton = document.getElementById('loadButton');
     const changeGridButton = document.getElementById('changeGridButton');
 
-            // Check if there is a grid generated
     if (gridData.length > 0) {
-                saveButton.classList.remove('hidden'); // Show save button
-                loadButton.classList.remove('hidden'); // Show load button
-                changeGridButton.classList.remove('hidden'); // Ensure change grid button is shown
+                saveButton.classList.remove('hidden'); 
+                loadButton.classList.remove('hidden'); 
+                changeGridButton.classList.remove('hidden'); 
             } else {
-                saveButton.classList.add('hidden'); // Hide save button
-                loadButton.classList.add('hidden'); // Hide load button
+                saveButton.classList.add('hidden');
+                loadButton.classList.add('hidden');
             }
         }
 
+function nextPage() {
+    currentPage++;
+    updatePageDisplay(); 
+}
+
+function previousPage() {
+    if (currentPage > 1) { 
+        currentPage--; //
+        updatePageDisplay(); 
+    }
+}
+
+function updatePageDisplay() {
+    document.getElementById('pageNumber').innerText = `Page ${currentPage}`; 
+}
+
 function saveGrid() {
-    const gridName = prompt('Enter a name for the grid:'); // Prompt user for grid name
+    const gridName = prompt('Enter a name for the grid:');
     if (!gridName) {
-        alert('Grid name cannot be empty!'); // Ensure a name is provided
+        alert('Grid name cannot be empty!'); 
         return;
     }
 
-    const gridJSON = JSON.stringify(gridData); // Convert grid data to JSON
-    localStorage.setItem(`savedGrid_${gridName}`, gridJSON); // Save with a unique key
-    alert('Grid saved!'); // Notify user
+    const gridJSON = JSON.stringify(gridData);
+    localStorage.setItem(`savedGrid_${gridName}`, gridJSON); 
+    alert('Grid saved!'); 
 }
 
  function loadGrid() {
-    showLoadPopup(); // Show the load overlay
+    closeSidebar();
+    showLoadPopup(); 
 }
 
 function showLoadPopup() {
     const savedGridsList = document.getElementById('savedGridsList');
-    savedGridsList.innerHTML = ''; // Clear previous list
+    savedGridsList.innerHTML = ''; 
 
-    // Get all keys from localStorage and filter for saved grids
     Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('savedGrid')) { // Assuming saved grids are prefixed with 'savedGrid'
+        if (key.startsWith('savedGrid')) { 
             const gridContainer = document.createElement('div');
             gridContainer.style.display = 'flex';
             gridContainer.style.justifyContent = 'space-between';
             gridContainer.style.alignItems = 'center';
 
             const loadButton = document.createElement('button');
-            loadButton.textContent = key; // Set button text to the grid name
+            loadButton.textContent = key;
             loadButton.onclick = function () {
-                loadSavedGrid(key); // Load the grid when clicked
+                loadSavedGrid(key); 
             };
 
             const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete'; // Button to delete the saved grid
+            deleteButton.textContent = 'Delete'; 
             deleteButton.onclick = function () {
-                deleteSavedGrid(key); // Delete the grid when clicked
+                deleteSavedGrid(key); 
             };
 
-            gridContainer.appendChild(loadButton); // Add load button
-            gridContainer.appendChild(deleteButton); // Add delete button
-            savedGridsList.appendChild(gridContainer); // Add container to the list
+            gridContainer.appendChild(loadButton); 
+            gridContainer.appendChild(deleteButton); 
+            savedGridsList.appendChild(gridContainer); 
         }
     });
 
-    document.getElementById('loadOverlay').style.display = 'flex'; // Show overlay
+    document.getElementById('loadOverlay').style.display = 'flex'; 
 }
 
 function deleteSavedGrid(gridName) {
     if (confirm(`Are you sure you want to delete "${gridName}"?`)) {
-        localStorage.removeItem(gridName); // Remove the grid from local storage
-        showLoadPopup(); // Refresh the list of saved grids
-        alert(`Grid "${gridName}" deleted!`); // Notify user
+        localStorage.removeItem(gridName); 
+        showLoadPopup(); 
+        alert(`Grid "${gridName}" deleted!`);
     }
 }
 
 function loadSavedGrid(gridName) {
-    const gridJSON = localStorage.getItem(gridName); // Retrieve grid data by name
+    const gridJSON = localStorage.getItem(gridName); 
     if (gridJSON) {
-        const loadedGrid = JSON.parse(gridJSON); // Parse JSON
-        gridData.length = 0; // Clear current grid data
-        loadedGrid.forEach(row => gridData.push(row)); // Load the saved grid
-        updateGridDisplay(gapSize); // Update the grid display
-        checkGridState(); // Update button visibility
-        alert('Grid loaded!'); // Notify user
-        closeLoadPopup(); // Close the overlay after loading
+        const loadedGrid = JSON.parse(gridJSON);
+        gridData.length = 0;
+        loadedGrid.forEach(row => gridData.push(row));
+        updateGridDisplay(gapSize); 
+        checkGridState();
+        alert('Grid loaded!');
+        closeLoadPopup(); 
     } else {
-        alert('No saved grid found.'); // Notify if no grid is found
+        alert('No saved grid found.'); 
     }
 }
 
 function closeLoadPopup() {
-    document.getElementById('loadOverlay').style.display = 'none'; // Hide the load overlay
+    document.getElementById('loadOverlay').style.display = 'none';
 }
+
+function initializeGrid() {
+        document.getElementById('rows').value = 3;
+        document.getElementById('columns').value = 3;
+        document.getElementById('gap').value = 5;
+        generateGrid();
+    }
     </script>
 </body>
 </html>
