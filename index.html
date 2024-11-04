@@ -231,7 +231,7 @@ input[type="text"]::-webkit-inner-spin-button {
             document.getElementById('overlay').style.display = 'none'; 
         }
 
-function closeSidebar() {
+        function closeSidebar() {
     const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
     if (previousSelectedCell) {
         previousSelectedCell.classList.remove('selected-cell'); 
@@ -240,10 +240,8 @@ function closeSidebar() {
     document.getElementById('mainContainer').style.marginLeft = '0'; 
     selectedCell = null;
 
-    // Show the page number and navigation buttons when the sidebar closes
+    // Show the page number when the sidebar closes
     document.getElementById('pageNumber').style.display = 'block'; 
-    document.getElementById('previousPageButton').style.display = 'inline-block'; 
-    document.getElementById('nextPageButton').style.display = 'inline-block'; 
 }
 
 function generateGrid() {
@@ -299,7 +297,7 @@ function updateGridDisplay(gap) {
             }
         }
 
-function openSidebar(gridItem) {
+        function openSidebar(gridItem) {
     const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
     if (previousSelectedCell) {
         previousSelectedCell.classList.remove('selected-cell');
@@ -311,11 +309,11 @@ function openSidebar(gridItem) {
     document.getElementById('mainContainer').style.marginLeft = '50%'; 
     selectedCell = gridItem; 
 
-    // Hide the page number and navigation buttons when the sidebar opens
+    // Hide the page number when the sidebar opens
     document.getElementById('pageNumber').style.display = 'none'; 
-    document.getElementById('previousPageButton').style.display = 'none'; 
-    document.getElementById('nextPageButton').style.display = 'none'; 
 }
+
+
 
 function searchName() {
             const searchInput = document.getElementById('searchInput').value; 
