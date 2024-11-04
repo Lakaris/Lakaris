@@ -23,6 +23,27 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive column layout */
 }
 
+#loadOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+#loadPopup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
         /* Styling for each grid cell with 2.5:3.5 height-to-width ratio */
         .grid-item {
             background-color: white;
@@ -184,6 +205,15 @@ input[type="text"]::-webkit-inner-spin-button {
             </label>
             <button onclick="generateGrid()">Generate Grid</button>
             <button onclick="closePopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Overlay for loading grids -->
+    <div id="loadOverlay">
+        <div id="loadPopup">
+            <h2>Load Saved Grids</h2>
+            <div id="savedGridsList"></div>
+            <button onclick="closeLoadPopup()">Close</button>
         </div>
     </div>
 
@@ -383,25 +413,81 @@ function checkGridState() {
             }
         }
 
-        function saveGrid() {
-            const gridJSON = JSON.stringify(gridData); // Convert grid data to JSON
-            localStorage.setItem('savedGrid', gridJSON); // Save to local storage
-            alert('Grid saved!'); // Notify user
-        }
+function saveGrid() {
+    const gridName = prompt('Enter a name for the grid:'); // Prompt user for grid name
+    if (!gridName) {
+        alert('Grid name cannot be empty!'); // Ensure a name is provided
+        return;
+    }
 
-        function loadGrid() {
-            const gridJSON = localStorage.getItem('savedGrid'); // Retrieve from local storage
-            if (gridJSON) {
-                const loadedGrid = JSON.parse(gridJSON); // Parse JSON
-                gridData.length = 0; // Clear current grid data
-                loadedGrid.forEach(row => gridData.push(row)); // Load the saved grid
-                updateGridDisplay(gapSize); // Update the grid display
-                checkGridState(); // Update button visibility
-                alert('Grid loaded!'); // Notify user
-            } else {
-                alert('No saved grid found.'); // Notify if no grid is saved
-            }
+    const gridJSON = JSON.stringify(gridData); // Convert grid data to JSON
+    localStorage.setItem(`savedGrid_${gridName}`, gridJSON); // Save with a unique key
+    alert('Grid saved!'); // Notify user
+}
+
+ function loadGrid() {
+    showLoadPopup(); // Show the load overlay
+}
+
+function showLoadPopup() {
+    const savedGridsList = document.getElementById('savedGridsList');
+    savedGridsList.innerHTML = ''; // Clear previous list
+
+    // Get all keys from localStorage and filter for saved grids
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('savedGrid')) { // Assuming saved grids are prefixed with 'savedGrid'
+            const gridContainer = document.createElement('div');
+            gridContainer.style.display = 'flex';
+            gridContainer.style.justifyContent = 'space-between';
+            gridContainer.style.alignItems = 'center';
+
+            const loadButton = document.createElement('button');
+            loadButton.textContent = key; // Set button text to the grid name
+            loadButton.onclick = function () {
+                loadSavedGrid(key); // Load the grid when clicked
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete'; // Button to delete the saved grid
+            deleteButton.onclick = function () {
+                deleteSavedGrid(key); // Delete the grid when clicked
+            };
+
+            gridContainer.appendChild(loadButton); // Add load button
+            gridContainer.appendChild(deleteButton); // Add delete button
+            savedGridsList.appendChild(gridContainer); // Add container to the list
         }
+    });
+
+    document.getElementById('loadOverlay').style.display = 'flex'; // Show overlay
+}
+
+function deleteSavedGrid(gridName) {
+    if (confirm(`Are you sure you want to delete "${gridName}"?`)) {
+        localStorage.removeItem(gridName); // Remove the grid from local storage
+        showLoadPopup(); // Refresh the list of saved grids
+        alert(`Grid "${gridName}" deleted!`); // Notify user
+    }
+}
+
+function loadSavedGrid(gridName) {
+    const gridJSON = localStorage.getItem(gridName); // Retrieve grid data by name
+    if (gridJSON) {
+        const loadedGrid = JSON.parse(gridJSON); // Parse JSON
+        gridData.length = 0; // Clear current grid data
+        loadedGrid.forEach(row => gridData.push(row)); // Load the saved grid
+        updateGridDisplay(gapSize); // Update the grid display
+        checkGridState(); // Update button visibility
+        alert('Grid loaded!'); // Notify user
+        closeLoadPopup(); // Close the overlay after loading
+    } else {
+        alert('No saved grid found.'); // Notify if no grid is found
+    }
+}
+
+function closeLoadPopup() {
+    document.getElementById('loadOverlay').style.display = 'none'; // Hide the load overlay
+}
     </script>
 </body>
 </html>
