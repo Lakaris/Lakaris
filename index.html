@@ -3,56 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3x3 Grid Generator</title>
+    <title>Custom Grid Generator</title>
     <style>
+        /* Center the content on the page */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
         /* Styling for the grid container */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
             gap: 10px;
             margin-top: 20px;
         }
 
         /* Styling for each grid cell */
         .grid-item {
-            background-color: #4CAF50;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            border-radius: 5px;
-        }
-
-        /* Center the content on the page */
-        .container {
-            text-align: center;
-            margin-top: 50px;
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            width: 100px;
+            height: 100px;
         }
 
         button {
             padding: 10px 20px;
             font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        /* Remove arrows for number inputs on all browsers */
+        input[type="text"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="text"]::-webkit-outer-spin-button,
+        input[type="text"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <button onclick="generateGrid()">Generate 3x3 Grid</button>
+    <label>
+        Rows: <input type="text" id="rows" placeholder="Enter rows">
+    </label>
+    <label>
+        Columns: <input type="text" id="columns" placeholder="Enter columns">
+    </label>
+    <button onclick="generateGrid()">Generate Grid</button>
     <div id="grid" class="grid-container"></div>
 </div>
 
 <script>
     function generateGrid() {
+        const rows = parseInt(document.getElementById('rows').value);
+        const columns = parseInt(document.getElementById('columns').value);
         const gridContainer = document.getElementById('grid');
+
+        // Ensure rows and columns are valid numbers
+        if (isNaN(rows) || isNaN(columns) || rows < 1 || columns < 1) {
+            alert("Please enter valid numbers for rows and columns.");
+            return;
+        }
+
         gridContainer.innerHTML = ''; // Clear any existing grid items
 
-        for (let i = 1; i <= 9; i++) {
+        // Set up the grid layout based on the user input
+        gridContainer.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
+        gridContainer.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+
+        // Create the grid items
+        const totalCells = rows * columns;
+        for (let i = 0; i < totalCells; i++) {
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-item';
-            gridItem.textContent = i; // Optional: number each cell
             gridContainer.appendChild(gridItem);
         }
     }
