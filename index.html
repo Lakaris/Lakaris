@@ -279,12 +279,23 @@ function updateSecondGridDisplay(secondGridData, gap) {
 
 function generateGrid() {
     // Set default rows and columns to 3
-    const rows = parseInt(document.getElementById('rows').value) || 3;
-    const columns = parseInt(document.getElementById('columns').value) || 3;
-    const gap = parseInt(document.getElementById('gap').value) || 10; 
+    const rows = parseInt(document.getElementById('rows').value);
+    const columns = parseInt(document.getElementById('columns').value);
+    const gap = parseInt(document.getElementById('gap').value); 
 
-    if (isNaN(rows) || isNaN(columns) || rows < 1 || columns < 1) {
-        alert("Please enter valid numbers for rows and columns.");
+
+    if (rows < 1 || columns < 1) {
+        alert("Rows and columns must be 1 or higher.");
+        return;
+    }
+
+    if (gap < 0) {
+        alert("Gap values must be 0 or higher.");
+        return;
+    }
+
+    if (isNaN(rows) || isNaN(columns) || isNaN(gap)) {
+        alert("Please enter valid numbers all fields.");
         return;
     }
 
@@ -530,19 +541,19 @@ function loadSavedGrid(gridName) {
         gridData.length = 0;
         loadedGrid.data.forEach(row => gridData.push(row));
         
-        // Load double-sided status
         const isDoubleSided = loadedGrid.isDoubleSided;
+        document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
+
         document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
 
         updateGridDisplay(gapSize); 
 
-        // Update second grid display based on double-sided status
         if (isDoubleSided) {
             const secondGridData = Array.from({ length: loadedGrid.data.length }, () => Array(loadedGrid.data[0].length).fill(null));
             updateSecondGridDisplay(secondGridData, gapSize);
         } else {
             const secondGridContainer = document.getElementById('secondGrid');
-            secondGridContainer.innerHTML = ''; // Clear the second grid if it was not double sided
+            secondGridContainer.innerHTML = ''; 
         }
         
         checkGridState();
