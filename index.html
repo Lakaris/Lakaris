@@ -13,10 +13,18 @@
     text-align: center; 
 }
 
+#gridContainer {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: flex-start; /* Align items at the top */
+    gap: 20px; /* Adjusts spacing between grids */
+    margin: 0 auto; /* Center the grid container itself */
+}
+
 .grid-container {
     display: grid;
-    margin-top: 0; 
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    margin-top: 0;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 #loadOverlay {
