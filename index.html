@@ -106,8 +106,8 @@
 #sidebar {
     position: fixed;
     top: 0;
-    left: -60%; 
-    width: 50%;
+    left: -55%; 
+    width: 45%;
     height: 100%;
     background-color: #f0f0f0;
     border-right: 2px solid black;
@@ -248,6 +248,11 @@ input[type="text"]::-webkit-inner-spin-button {
 
     // Show the page number when the sidebar closes
     document.getElementById('pageNumber').style.display = 'block'; 
+    document.getElementById('previousPageButton').style.display = 'inline-block'; 
+    document.getElementById('nextPageButton').style.display = 'inline-block'; 
+    document.getElementById('saveButton').style.display = 'inline-block'; 
+    document.getElementById('loadButton').style.display = 'inline-block'; 
+    document.getElementById('changeGridButton').style.display = 'inline-block'; 
 }
 
 function updateSecondGridDisplay(secondGridData, gap) {
@@ -346,6 +351,11 @@ function updateGridDisplay(gap) {
 
     // Hide the page number when the sidebar opens
     document.getElementById('pageNumber').style.display = 'none'; 
+    document.getElementById('previousPageButton').style.display = 'none'; 
+    document.getElementById('nextPageButton').style.display = 'none'; 
+    document.getElementById('saveButton').style.display = 'none'; 
+    document.getElementById('loadButton').style.display = 'none'; 
+    document.getElementById('changeGridButton').style.display = 'none'; 
 }
 
 
