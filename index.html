@@ -176,7 +176,10 @@ input[type="text"]::-webkit-inner-spin-button {
             <button id="loadButton" onclick="loadGrid()">Load Grid</button>
         </div>
         <button id="previousPageButton" onclick="previousPage()" style="margin-right: 10px;">Previous Page</button>
-        <div id="grid" class="grid-container"></div>
+        <div id="gridContainer" style="display: flex;">
+            <div id="grid" class="grid-container"></div>
+            <div id="secondGrid" class="grid-container" style="margin-left: 20px;"></div>
+        </div>
         <button id="nextPageButton" onclick="nextPage()" style="margin-left: 10px;">Next Page</button>
     </div>
     <div id="pageNumber" style="text-align: center; margin-top: 20px;">Page 1</div>
@@ -192,6 +195,9 @@ input[type="text"]::-webkit-inner-spin-button {
             </label>
             <label>
                 Gap: <input type="text" id="gap" placeholder="Enter gap (px)" value="10">
+            </label>
+            <label>
+                <input type="checkbox" id="doubleSidedCheckbox"> Make double sided
             </label>
             <button onclick="generateGrid()">Generate Grid</button>
             <button onclick="closePopup()">Close</button>
@@ -244,6 +250,28 @@ input[type="text"]::-webkit-inner-spin-button {
     document.getElementById('pageNumber').style.display = 'block'; 
 }
 
+function updateSecondGridDisplay(secondGridData, gap) {
+    const secondGridContainer = document.getElementById('secondGrid');
+    secondGridContainer.innerHTML = ''; 
+
+    secondGridContainer.style.gridTemplateColumns = `repeat(${secondGridData[0].length}, 1fr)`;
+    secondGridContainer.style.gap = `${gap}px`;
+
+    for (let r = 0; r < secondGridData.length; r++) {
+        for (let c = 0; c < secondGridData[r].length; c++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.onclick = function () {
+                openSidebar(gridItem);
+            };
+
+            // If you need to manage cards in the second grid as well, you can add logic here
+
+            secondGridContainer.appendChild(gridItem);
+        }
+    }
+}
+
 function generateGrid() {
     // Set default rows and columns to 3
     const rows = parseInt(document.getElementById('rows').value) || 3;
@@ -255,16 +283,23 @@ function generateGrid() {
         return;
     }
 
-    const newGridData = Array.from({ length: rows }, (_, r) => {
-        return Array.from({ length: columns }, (_, c) => {
-            return (gridData[r] && gridData[r][c]) ? gridData[r][c] : null;
-        });
-    });
+    const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
 
     gridData.length = 0; 
     newGridData.forEach(row => gridData.push(row));
 
     updateGridDisplay(gap); 
+
+    // Check if the checkbox is checked and create the second grid if so
+    const isDoubleSided = document.getElementById('doubleSidedCheckbox').checked;
+    if (isDoubleSided) {
+        const secondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+        updateSecondGridDisplay(secondGridData, gap);
+    } else {
+        // Clear the second grid if not double sided
+        const secondGridContainer = document.getElementById('secondGrid');
+        secondGridContainer.innerHTML = ''; // Clear the second grid
+    }
 
     closePopup(); 
 }
@@ -422,7 +457,11 @@ function saveGrid() {
         return;
     }
 
-    const gridJSON = JSON.stringify(gridData);
+    // Save grid data and double-sided status
+    const gridJSON = JSON.stringify({
+        data: gridData,
+        isDoubleSided: document.getElementById('doubleSidedCheckbox').checked
+    });
     localStorage.setItem(`savedGrid_${gridName}`, gridJSON); 
     alert('Grid saved!'); 
 }
@@ -476,9 +515,26 @@ function loadSavedGrid(gridName) {
     const gridJSON = localStorage.getItem(gridName); 
     if (gridJSON) {
         const loadedGrid = JSON.parse(gridJSON);
+        
+        // Load grid data
         gridData.length = 0;
-        loadedGrid.forEach(row => gridData.push(row));
+        loadedGrid.data.forEach(row => gridData.push(row));
+        
+        // Load double-sided status
+        const isDoubleSided = loadedGrid.isDoubleSided;
+        document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
+
         updateGridDisplay(gapSize); 
+
+        // Update second grid display based on double-sided status
+        if (isDoubleSided) {
+            const secondGridData = Array.from({ length: loadedGrid.data.length }, () => Array(loadedGrid.data[0].length).fill(null));
+            updateSecondGridDisplay(secondGridData, gapSize);
+        } else {
+            const secondGridContainer = document.getElementById('secondGrid');
+            secondGridContainer.innerHTML = ''; // Clear the second grid if it was not double sided
+        }
+        
         checkGridState();
         alert('Grid loaded!');
         closeLoadPopup(); 
