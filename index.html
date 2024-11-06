@@ -13,18 +13,10 @@
     text-align: center; 
 }
 
-#gridContainer {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: flex-start; /* Align items at the top */
-    gap: 20px; /* Adjusts spacing between grids */
-    margin: 0 auto; /* Center the grid container itself */
-}
-
 .grid-container {
     display: grid;
-    margin-top: 0;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    margin-top: 0; 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
 }
 
 #loadOverlay {
@@ -233,8 +225,10 @@ input[type="text"]::-webkit-inner-spin-button {
     <script>
         let selectedCell = null;
         const gridData = []; 
+        const secondGridData = []; // Added for second grid data
         let gapSize = 10; 
         let currentPage = 1;
+        let selectedGrid = '';
 
         function openPopup() {
             closeSidebar(); 
@@ -266,7 +260,6 @@ input[type="text"]::-webkit-inner-spin-button {
 function updateSecondGridDisplay(secondGridData, gap) {
     const secondGridContainer = document.getElementById('secondGrid');
     secondGridContainer.innerHTML = ''; 
-
     secondGridContainer.style.gridTemplateColumns = `repeat(${secondGridData[0].length}, 1fr)`;
     secondGridContainer.style.gap = `${gap}px`;
 
@@ -275,88 +268,83 @@ function updateSecondGridDisplay(secondGridData, gap) {
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-item';
             gridItem.onclick = function () {
-                openSidebar(gridItem);
+                openSidebar(gridItem, 'secondGrid'); // Pass 'secondGrid' as the identifier
             };
 
-            // If you need to manage cards in the second grid as well, you can add logic here
-
+            if (secondGridData[r][c]) {
+                const imgElement = document.createElement('img');
+                imgElement.src = secondGridData[r][c].imageUrl;
+                imgElement.alt = secondGridData[r][c].name;
+                imgElement.className = 'card-image';
+                gridItem.appendChild(imgElement);
+            }
             secondGridContainer.appendChild(gridItem);
         }
     }
 }
 
+
 function generateGrid() {
-    // Set default rows and columns to 3
     const rows = parseInt(document.getElementById('rows').value);
     const columns = parseInt(document.getElementById('columns').value);
-    const gap = parseInt(document.getElementById('gap').value); 
+    const gap = parseInt(document.getElementById('gap').value);
 
-
-    if (rows < 1 || columns < 1) {
-        alert("Rows and columns must be 1 or higher.");
+    if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
+        alert("Please enter valid positive numbers for rows, columns, and gap.");
         return;
     }
 
-    if (gap < 0) {
-        alert("Gap values must be 0 or higher.");
-        return;
-    }
-
-    if (isNaN(rows) || isNaN(columns) || isNaN(gap)) {
-        alert("Please enter valid numbers all fields.");
-        return;
-    }
-
+    // Initialize main grid data
     const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
-
-    gridData.length = 0; 
+    gridData.length = 0;
     newGridData.forEach(row => gridData.push(row));
+    updateGridDisplay(gap);
 
-    updateGridDisplay(gap); 
-
-    // Check if the checkbox is checked and create the second grid if so
-    const isDoubleSided = document.getElementById('doubleSidedCheckbox').checked;
-    if (isDoubleSided) {
-        const secondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+    // Check if double-sided is selected and initialize second grid data
+    if (document.getElementById('doubleSidedCheckbox').checked) {
+        const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+        secondGridData.length = 0;
+        newSecondGridData.forEach(row => secondGridData.push(row));
         updateSecondGridDisplay(secondGridData, gap);
     } else {
-        // Clear the second grid if not double sided
-        const secondGridContainer = document.getElementById('secondGrid');
-        secondGridContainer.innerHTML = ''; // Clear the second grid
+        // Clear second grid data and UI if not double-sided
+        secondGridData.length = 0;
+        document.getElementById('secondGrid').innerHTML = '';
     }
 
-    closePopup(); 
+    closePopup();
 }
+
 
 function updateGridDisplay(gap) {
     const gridContainer = document.getElementById('grid');
-            gridContainer.innerHTML = ''; 
+    gridContainer.innerHTML = ''; 
+    gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`;
+    gridContainer.style.gap = `${gap}px`;
 
-            gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`;
-            gridContainer.style.gap = `${gap}px`;
+    for (let r = 0; r < gridData.length; r++) {
+        for (let c = 0; c < gridData[r].length; c++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.onclick = function () {
+                openSidebar(gridItem, 'grid'); // Pass 'grid' as the identifier
+            };
 
-            for (let r = 0; r < gridData.length; r++) {
-                for (let c = 0; c < gridData[r].length; c++) {
-                    const gridItem = document.createElement('div');
-                    gridItem.className = 'grid-item';
-                    gridItem.onclick = function () {
-                        openSidebar(gridItem);
-                    };
-
-                    if (gridData[r][c]) {
-                        const imgElement = document.createElement('img');
-                        imgElement.src = gridData[r][c].imageUrl;
-                        imgElement.alt = gridData[r][c].name;
-                        imgElement.className = 'card-image'; 
-                        gridItem.appendChild(imgElement);
-                    }
-
-                    gridContainer.appendChild(gridItem);
-                }
+            if (gridData[r][c]) {
+                const imgElement = document.createElement('img');
+                imgElement.src = gridData[r][c].imageUrl;
+                imgElement.alt = gridData[r][c].name;
+                imgElement.className = 'card-image'; 
+                gridItem.appendChild(imgElement);
             }
-        }
 
-        function openSidebar(gridItem) {
+            gridContainer.appendChild(gridItem);
+        }
+    }
+}
+
+
+function openSidebar(gridItem, gridIdentifier) {
     const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
     if (previousSelectedCell) {
         previousSelectedCell.classList.remove('selected-cell');
@@ -367,6 +355,11 @@ function updateGridDisplay(gap) {
     sidebar.classList.add('open'); 
     document.getElementById('mainContainer').style.marginLeft = '50%'; 
     selectedCell = gridItem; 
+
+    // Store the grid identifier in a global or session variable if necessary
+    selectedGrid = gridIdentifier;
+
+    console.log(`Clicked on a cell in ${selectedGrid}`);
 
     // Hide the page number when the sidebar opens
     document.getElementById('pageNumber').style.display = 'none'; 
@@ -415,7 +408,7 @@ function searchName() {
             cardImg.alt = card.name;
             cardImg.className = 'card-image';
             cardImg.onclick = function() {
-                addCardToGrid(card); 
+                addCardToGrid(card, selectedGrid); 
             };
 
             searchResults.appendChild(cardImg); 
@@ -426,7 +419,7 @@ function searchName() {
 }
 
 
-function addCardToGrid(card) {
+function addCardToGrid(card, gridIdentifier) {
     if (selectedCell) {
         const gridItem = selectedCell; 
         gridItem.innerHTML = ''; 
@@ -438,12 +431,24 @@ function addCardToGrid(card) {
 
         const rowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length); 
         const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; 
-        gridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
+        
+        // Check which grid was clicked and update the corresponding grid data
+            console.log(`Grid clicked: ${gridIdentifier}`);
+        if (gridIdentifier === 'secondGrid') {
+            secondGridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
+            console.log(`Added data to grid 2`);
+        } else {
+            gridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
+            console.log(`Added data to grid 1`);
+        }
 
         gridItem.classList.remove('selected-cell'); 
+        console.log("gridData:", gridData);
+        console.log("secondGridData:", secondGridData);
         checkGridState(); 
     }
 }
+
 
 
 
@@ -482,17 +487,19 @@ function updatePageDisplay() {
 function saveGrid() {
     const gridName = prompt('Enter a name for the grid:');
     if (!gridName) {
-        alert('Grid name cannot be empty!'); 
+        alert('Grid name cannot be empty!');
         return;
     }
 
-    // Save grid data and double-sided status
     const gridJSON = JSON.stringify({
         data: gridData,
+        secondData: secondGridData, // Save secondGridData
         isDoubleSided: document.getElementById('doubleSidedCheckbox').checked
     });
-    localStorage.setItem(`savedGrid_${gridName}`, gridJSON); 
-    alert('Grid saved!'); 
+    localStorage.setItem(`savedGrid_${gridName}`, gridJSON);
+    alert('Grid saved!');
+    console.log("GridData:", gridData);
+    console.log("secondGridData:", secondGridData);
 }
 
  function loadGrid() {
@@ -541,34 +548,31 @@ function deleteSavedGrid(gridName) {
 }
 
 function loadSavedGrid(gridName) {
-    const gridJSON = localStorage.getItem(gridName); 
+    const gridJSON = localStorage.getItem(gridName);
     if (gridJSON) {
         const loadedGrid = JSON.parse(gridJSON);
-        
-        // Load grid data
+
+        // Load primary grid data
         gridData.length = 0;
         loadedGrid.data.forEach(row => gridData.push(row));
-        
+
+        // Load second grid data if available
         const isDoubleSided = loadedGrid.isDoubleSided;
         document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
+        
+        updateGridDisplay(gapSize); // Updates the primary grid display
 
-        document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
-
-        updateGridDisplay(gapSize); 
-
-        if (isDoubleSided) {
-            const secondGridData = Array.from({ length: loadedGrid.data.length }, () => Array(loadedGrid.data[0].length).fill(null));
-            updateSecondGridDisplay(secondGridData, gapSize);
+        if (isDoubleSided && loadedGrid.secondData) {
+            // If the grid is double-sided, load the second grid
+            const secondGridData = loadedGrid.secondData;
+            updateSecondGridDisplay(secondGridData, gapSize); // Updates the second grid display
         } else {
+            // Clear the second grid if it's not double-sided
             const secondGridContainer = document.getElementById('secondGrid');
             secondGridContainer.innerHTML = ''; 
         }
-        
-        checkGridState();
-        alert('Grid loaded!');
-        closeLoadPopup(); 
-    } else {
-        alert('No saved grid found.'); 
+
+        closeLoadPopup();
     }
 }
 
@@ -580,6 +584,7 @@ function initializeGrid() {
         document.getElementById('rows').value = 3;
         document.getElementById('columns').value = 3;
         document.getElementById('gap').value = 5;
+        document.getElementById('doubleSidedCheckbox').checked = false;
         generateGrid();
     }
     </script>
