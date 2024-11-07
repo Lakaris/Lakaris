@@ -225,10 +225,17 @@ input[type="text"]::-webkit-inner-spin-button {
     <script>
         let selectedCell = null;
         const gridData = []; 
+        const allPages = []; 
+        const allSecondPages = []; 
         const secondGridData = []; // Added for second grid data
         let gapSize = 10; 
         let currentPage = 1;
         let selectedGrid = '';
+        let isDoubleSided = false;
+        const checkbox = document.getElementById("doubleSidedCheckbox");
+        checkbox.addEventListener("change", () => {
+            const isDoubleSided = checkbox.checked;
+        });
 
         function openPopup() {
             closeSidebar(); 
@@ -298,6 +305,7 @@ function generateGrid() {
     const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
     gridData.length = 0;
     newGridData.forEach(row => gridData.push(row));
+    allPages.push(gridData)
     updateGridDisplay(gap);
 
     // Check if double-sided is selected and initialize second grid data
@@ -305,7 +313,9 @@ function generateGrid() {
         const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
         secondGridData.length = 0;
         newSecondGridData.forEach(row => secondGridData.push(row));
+        allSecondPages.push(secondGridData)
         updateSecondGridDisplay(secondGridData, gap);
+        console.log(`All array data: ${JSON.stringify(allSecondPages)}`);
     } else {
         // Clear second grid data and UI if not double-sided
         secondGridData.length = 0;
@@ -433,13 +443,10 @@ function addCardToGrid(card, gridIdentifier) {
         const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; 
         
         // Check which grid was clicked and update the corresponding grid data
-            console.log(`Grid clicked: ${gridIdentifier}`);
         if (gridIdentifier === 'secondGrid') {
             secondGridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
-            console.log(`Added data to grid 2`);
         } else {
             gridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
-            console.log(`Added data to grid 1`);
         }
 
         gridItem.classList.remove('selected-cell'); 
@@ -448,11 +455,7 @@ function addCardToGrid(card, gridIdentifier) {
         checkGridState(); 
     }
 }
-
-
-
-
-
+    
 function checkGridState() {
     const saveButton = document.getElementById('saveButton');
     const loadButton = document.getElementById('loadButton');
@@ -469,13 +472,49 @@ function checkGridState() {
         }
 
 function nextPage() {
+    allPages.splice(currentPage-1, 1, JSON.parse(JSON.stringify(gridData)));
+    if (isDoubleSided == true) {
+            console.log(`Second grid data: ${JSON.stringify(secondGridData)}`);
+            allSecondPages.splice(currentPage-1, 1, JSON.parse(JSON.stringify(secondGridData)));
+        }
     currentPage++;
+
+    if (allPages[currentPage - 1] !== undefined) {
+        gridData.length = 0;
+        gridData.push(...allPages[currentPage - 1]);
+        if (isDoubleSided == true) {
+            secondGridData.length = 0;
+            secondGridData.push(...allSecondPages[currentPage - 1]);
+        }
+    } else {
+        gridData.forEach(row => row.fill(null));
+        if (isDoubleSided == false) {
+            console.log(`Should now clean second grid`);
+            secondGridData.forEach(row => row.fill(null));
+        }
+    }
+
+    updateGridDisplay(gapSize);
+
+    if (isDoubleSided) {
+        updateSecondGridDisplay(secondGridData, gapSize);
+    }
     updatePageDisplay(); 
 }
 
 function previousPage() {
     if (currentPage > 1) { 
         currentPage--; //
+        allPages.splice(currentPage, 1, JSON.parse(JSON.stringify(gridData)));
+        gridData.length = 0
+        gridData.push(...allPages[currentPage - 1]);
+        if (isDoubleSided) {
+            allSecondPages.splice(currentPage, 1, JSON.parse(JSON.stringify(secondGridData)));
+            secondGridData.length = 0
+            secondGridData.push(...allSecondPages[currentPage - 1]);
+        }
+        updateGridDisplay(gapSize);
+        console.log(`Current Page: ${currentPage}`);
         updatePageDisplay(); 
     }
 }
@@ -557,7 +596,7 @@ function loadSavedGrid(gridName) {
         loadedGrid.data.forEach(row => gridData.push(row));
 
         // Load second grid data if available
-        const isDoubleSided = loadedGrid.isDoubleSided;
+        isDoubleSided = loadedGrid.isDoubleSided;
         document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
         
         updateGridDisplay(gapSize); // Updates the primary grid display
