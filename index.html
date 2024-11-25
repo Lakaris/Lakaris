@@ -175,14 +175,11 @@ input[type="text"]::-webkit-inner-spin-button {
             <button id="saveButton" onclick="saveGrid()">Save Grid</button>
             <button id="loadButton" onclick="loadGrid()">Load Grid</button>
         </div>
-        <button id="previousPageButton" onclick="previousPage()" style="margin-right: 10px;">Previous Page</button>
         <div id="gridContainer" style="display: flex;">
             <div id="grid" class="grid-container"></div>
             <div id="secondGrid" class="grid-container" style="margin-left: 20px;"></div>
         </div>
-        <button id="nextPageButton" onclick="nextPage()" style="margin-left: 10px;">Next Page</button>
     </div>
-    <div id="pageNumber" style="text-align: center; margin-top: 20px;">Page 1</div>
     
     <div id="overlay">
         <div id="popup">
@@ -200,6 +197,7 @@ input[type="text"]::-webkit-inner-spin-button {
                 <input type="checkbox" id="doubleSidedCheckbox"> Make double sided
             </label>
             <button onclick="generateGrid()">Generate Grid</button>
+            <button onclick="updateGrid()">Update Grid</button> <!-- New Button -->
             <button onclick="closePopup()">Close</button>
         </div>
     </div>
@@ -225,13 +223,14 @@ input[type="text"]::-webkit-inner-spin-button {
     <script>
         let selectedCell = null;
         const gridData = []; 
-        const allPages = []; 
-        const allSecondPages = []; 
+        let allPages = []; 
+        let allSecondPages = []; 
         const secondGridData = []; // Added for second grid data
         let gapSize = 10; 
         let currentPage = 1;
         let selectedGrid = '';
         let isDoubleSided = false;
+        let savedSecondPages = [];
         const checkbox = document.getElementById("doubleSidedCheckbox");
         checkbox.addEventListener("change", () => {
             const isDoubleSided = checkbox.checked;
@@ -256,9 +255,6 @@ input[type="text"]::-webkit-inner-spin-button {
     selectedCell = null;
 
     // Show the page number when the sidebar closes
-    document.getElementById('pageNumber').style.display = 'block'; 
-    document.getElementById('previousPageButton').style.display = 'inline-block'; 
-    document.getElementById('nextPageButton').style.display = 'inline-block'; 
     document.getElementById('saveButton').style.display = 'inline-block'; 
     document.getElementById('loadButton').style.display = 'inline-block'; 
     document.getElementById('changeGridButton').style.display = 'inline-block'; 
@@ -305,26 +301,34 @@ function generateGrid() {
     const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
     gridData.length = 0;
     newGridData.forEach(row => gridData.push(row));
-    allPages.push(gridData)
+    allPages.push(gridData);
     updateGridDisplay(gap);
 
-    // Check if double-sided is selected and initialize second grid data
+    // Check if double-sided is selected
     if (document.getElementById('doubleSidedCheckbox').checked) {
-        const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
-        secondGridData.length = 0;
-        newSecondGridData.forEach(row => secondGridData.push(row));
-        allSecondPages.push(secondGridData)
+        if (allSecondPages.length === 0 && savedSecondPages.length > 0) {
+            // Restore saved data if it exists
+            allSecondPages = JSON.parse(JSON.stringify(savedSecondPages));
+        } else if (allSecondPages.length === 0) {
+            // Populate second grid data only if it hasn't been initialized or restored
+            const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+            secondGridData.length = 0;
+            newSecondGridData.forEach(row => secondGridData.push(row));
+            allSecondPages.push(secondGridData);
+        }
         updateSecondGridDisplay(secondGridData, gap);
         console.log(`All array data: ${JSON.stringify(allSecondPages)}`);
     } else {
-        // Clear second grid data and UI if not double-sided
-        secondGridData.length = 0;
+        // Save current second grid data and clear the UI if not double-sided
+        if (allSecondPages.length > 0) {
+            savedSecondPages = JSON.parse(JSON.stringify(allSecondPages));
+        }
+        allSecondPages.length = 0; // Clear all second pages data
         document.getElementById('secondGrid').innerHTML = '';
     }
 
     closePopup();
 }
-
 
 function updateGridDisplay(gap) {
     const gridContainer = document.getElementById('grid');
@@ -353,6 +357,41 @@ function updateGridDisplay(gap) {
     }
 }
 
+function updateGrid() {
+    const rows = parseInt(document.getElementById('rows').value);
+    const columns = parseInt(document.getElementById('columns').value);
+    const gap = parseInt(document.getElementById('gap').value);
+
+    if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
+        alert("Please enter valid positive numbers for rows, columns, and gap.");
+        return;
+    }
+
+    // Resize main grid data
+    const newGridData = Array.from({ length: rows }, (_, r) => 
+        Array.from({ length: columns }, (_, c) => (gridData[r]?.[c] || null))
+    );
+    gridData.length = 0;
+    newGridData.forEach(row => gridData.push(row));
+    allPages[currentPage - 1] = gridData;
+
+    updateGridDisplay(gap); // Update the main grid display
+
+    // Resize second grid if double-sided is active
+    if (document.getElementById('doubleSidedCheckbox').checked) {
+        const newSecondGridData = Array.from({ length: rows }, (_, r) => 
+            Array.from({ length: columns }, (_, c) => (secondGridData[r]?.[c] || null))
+        );
+        secondGridData.length = 0;
+        newSecondGridData.forEach(row => secondGridData.push(row));
+        allSecondPages[currentPage - 1] = secondGridData;
+
+        updateSecondGridDisplay(secondGridData, gap); // Update second grid display
+    }
+
+    gapSize = gap; // Update global gap size
+    closePopup();
+}
 
 function openSidebar(gridItem, gridIdentifier) {
     const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
@@ -372,9 +411,6 @@ function openSidebar(gridItem, gridIdentifier) {
     console.log(`Clicked on a cell in ${selectedGrid}`);
 
     // Hide the page number when the sidebar opens
-    document.getElementById('pageNumber').style.display = 'none'; 
-    document.getElementById('previousPageButton').style.display = 'none'; 
-    document.getElementById('nextPageButton').style.display = 'none'; 
     document.getElementById('saveButton').style.display = 'none'; 
     document.getElementById('loadButton').style.display = 'none'; 
     document.getElementById('changeGridButton').style.display = 'none'; 
@@ -471,58 +507,6 @@ function checkGridState() {
             }
         }
 
-function nextPage() {
-    allPages.splice(currentPage-1, 1, JSON.parse(JSON.stringify(gridData)));
-    if (isDoubleSided == true) {
-            console.log(`Second grid data: ${JSON.stringify(secondGridData)}`);
-            allSecondPages.splice(currentPage-1, 1, JSON.parse(JSON.stringify(secondGridData)));
-        }
-    currentPage++;
-
-    if (allPages[currentPage - 1] !== undefined) {
-        gridData.length = 0;
-        gridData.push(...allPages[currentPage - 1]);
-        if (isDoubleSided == true) {
-            secondGridData.length = 0;
-            secondGridData.push(...allSecondPages[currentPage - 1]);
-        }
-    } else {
-        gridData.forEach(row => row.fill(null));
-        if (isDoubleSided == false) {
-            console.log(`Should now clean second grid`);
-            secondGridData.forEach(row => row.fill(null));
-        }
-    }
-
-    updateGridDisplay(gapSize);
-
-    if (isDoubleSided) {
-        updateSecondGridDisplay(secondGridData, gapSize);
-    }
-    updatePageDisplay(); 
-}
-
-function previousPage() {
-    if (currentPage > 1) { 
-        currentPage--; //
-        allPages.splice(currentPage, 1, JSON.parse(JSON.stringify(gridData)));
-        gridData.length = 0
-        gridData.push(...allPages[currentPage - 1]);
-        if (isDoubleSided) {
-            allSecondPages.splice(currentPage, 1, JSON.parse(JSON.stringify(secondGridData)));
-            secondGridData.length = 0
-            secondGridData.push(...allSecondPages[currentPage - 1]);
-        }
-        updateGridDisplay(gapSize);
-        console.log(`Current Page: ${currentPage}`);
-        updatePageDisplay(); 
-    }
-}
-
-function updatePageDisplay() {
-    document.getElementById('pageNumber').innerText = `Page ${currentPage}`; 
-}
-
 function saveGrid() {
     const gridName = prompt('Enter a name for the grid:');
     if (!gridName) {
@@ -533,7 +517,8 @@ function saveGrid() {
     const gridJSON = JSON.stringify({
         data: gridData,
         secondData: secondGridData, // Save secondGridData
-        isDoubleSided: document.getElementById('doubleSidedCheckbox').checked
+        isDoubleSided: document.getElementById('doubleSidedCheckbox').checked,
+        gapSize: parseInt(document.getElementById('gap').value) // Save gapSize
     });
     localStorage.setItem(`savedGrid_${gridName}`, gridJSON);
     alert('Grid saved!');
@@ -588,32 +573,39 @@ function deleteSavedGrid(gridName) {
 
 function loadSavedGrid(gridName) {
     const gridJSON = localStorage.getItem(gridName);
-    if (gridJSON) {
-        const loadedGrid = JSON.parse(gridJSON);
-
-        // Load primary grid data
-        gridData.length = 0;
-        loadedGrid.data.forEach(row => gridData.push(row));
-
-        // Load second grid data if available
-        isDoubleSided = loadedGrid.isDoubleSided;
-        document.getElementById('doubleSidedCheckbox').checked = isDoubleSided;
-        
-        updateGridDisplay(gapSize); // Updates the primary grid display
-
-        if (isDoubleSided && loadedGrid.secondData) {
-            // If the grid is double-sided, load the second grid
-            const secondGridData = loadedGrid.secondData;
-            updateSecondGridDisplay(secondGridData, gapSize); // Updates the second grid display
-        } else {
-            // Clear the second grid if it's not double-sided
-            const secondGridContainer = document.getElementById('secondGrid');
-            secondGridContainer.innerHTML = ''; 
-        }
-
-        closeLoadPopup();
+    if (!gridJSON) {
+        alert('Error loading grid!');
+        return;
     }
+
+    const savedData = JSON.parse(gridJSON);
+
+    // Load the grid data
+    gridData.length = 0;
+    savedData.data.forEach(row => gridData.push(row));
+    allPages = [gridData];
+    updateGridDisplay(savedData.gapSize);
+
+    // Load the second grid data if double-sided
+    if (savedData.isDoubleSided && savedData.secondData) {
+        secondGridData.length = 0;
+        savedData.secondData.forEach(row => secondGridData.push(row));
+        allSecondPages = [secondGridData];
+        updateSecondGridDisplay(secondGridData, savedData.gapSize);
+        document.getElementById('doubleSidedCheckbox').checked = true;
+    } else {
+        document.getElementById('doubleSidedCheckbox').checked = false;
+        allSecondPages = [];
+        document.getElementById('secondGrid').innerHTML = '';
+    }
+
+    // Update the gap input field in the popup
+    document.getElementById('gap').value = savedData.gapSize;
+
+    closeLoadPopup();
+    alert('Grid loaded!');
 }
+
 
 function closeLoadPopup() {
     document.getElementById('loadOverlay').style.display = 'none';
