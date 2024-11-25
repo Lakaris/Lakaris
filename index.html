@@ -1,240 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <body onload="initializeGrid()">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Grid Generator</title>
-    <style>
-.container {
-    display: flex;
-    align-items: flex-start; /* Aligns items at the top */
-    justify-content: center; /* Center the items horizontally */
-    text-align: center; 
-}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Custom Grid Generator</title>
+        <style>
+            .container {
+                display: flex;
+                align-items: flex-start; /* Aligns items at the top */
+                justify-content: center; /* Center the items horizontally */
+                text-align: center; 
+            }
 
-.grid-container {
-    display: grid;
-    margin-top: 0; 
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-}
+            .grid-container {
+                display: grid;
+                margin-top: 0; 
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            }
 
-#loadOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: none; 
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
+            #loadOverlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: none; 
+                justify-content: center;
+                align-items: center;
+                z-index: 999;
+            }
 
-#loadPopup {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
+            #loadPopup {
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+                text-align: center;
+            }
 
-        .grid-item {
-            background-color: white;
-            border: 2px solid black;
-            border-radius: 10px;
-            width: 150px;  
-            height: 210px; 
-            cursor: pointer;
-            position: relative; 
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+            .grid-item {
+                background-color: white;
+                border: 2px solid black;
+                border-radius: 10px;
+                width: 150px;  
+                height: 210px; 
+                cursor: pointer;
+                position: relative; 
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 
-        #changeGridButton {
-            padding: 10px 20px;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
+            #changeGridButton {
+                padding: 10px 20px;
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
 
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            margin-top: 10px; 
-        }
+            button {
+                padding: 10px 20px;
+                font-size: 1rem;
+                margin-top: 10px; 
+            }
 
-.button-container {
-    position: fixed; 
-    top: 20px; 
-    right: 20px; 
-    display: flex;
-    flex-direction: column; 
-    align-items: flex-start; 
-    width: auto; 
-    margin: 0; 
-    z-index: 100; 
-}
+            .button-container {
+                position: fixed; 
+                top: 20px; 
+                right: 20px; 
+                display: flex;
+                flex-direction: column; 
+                align-items: flex-start; 
+                width: auto; 
+                margin: 0; 
+                z-index: 100; 
+            }
 
-.button-container button {
-    margin-bottom: 5px; 
-}
+            .button-container button {
+                margin-bottom: 5px; 
+            }
 
-#overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
+            .grid-item {
+                position: relative; /* Important for positioning the button inside */
+                overflow: hidden;
+            }
 
-#popup {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
+            .grid-item .hover-button {
+                z-index: 10;
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                padding: 5px 10px;
+                font-size: 0.8rem;
+                background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent black */
+                color: white; /* Text color to contrast */
+                border: 1px solid black;
+                border-radius: 5px;
+                cursor: pointer;
+                opacity: 0; /* Initial low opacity */
+                transition: opacity 0.3s ease; /* Smooth transition for hover effect */
+                z-index: 10;
+            }
 
-#sidebar {
-    position: fixed;
-    top: 0;
-    left: -55%; 
-    width: 45%;
-    height: 100%;
-    background-color: #f0f0f0;
-    border-right: 2px solid black;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
-    transition: left 0.3s ease;
-    z-index: 1000;
-}
+            .grid-item:hover .hover-button {
+                opacity: 1; /* Full visibility on hover */
+            }
 
-#sidebar.open {
-    left: 0; 
-}
+            .grid-item .dropdown-menu {
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.3);
+                border: 1px solid black;
+                border-radius: 5px;
+                z-index: 1;
+                padding: 5px;
+                display: none;
+                opacity: 0; /* Initial low opacity */
+                transition: opacity 0.3s ease; /* Smooth transition for hover effect */
+            }
 
-input[type="text"] {
-    width: calc(100% - 20px);
-    padding: 15px;
-    margin-top: 10px;
-    font-size: 1.5rem;
-}
+            .grid-item:hover .dropdown-menu {
+                opacity: 1; /* Full visibility on hover */
+            }
 
-input[type="text"] {
-    -moz-appearance: textfield;
-}
+            .dropdown-item {
+                padding: 5px;
+                cursor: pointer;
+                color: white; /* Text color to contrast */
+                transition: opacity 0.3s ease; /* Smooth transition for hover effect */
+            }
 
-input[type="text"]::-webkit-outer-spin-button,
-input[type="text"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
+            .dropdown-item:hover {
+                background-color: #f0f0f0;
+            }
 
-.card-image {
-    width: 150px; 
-    height: 210px; 
-    object-fit: cover;
-    margin: 5px; 
-}
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 999;
+            }
 
-.selected-cell {
-    border: 2px dashed red; 
-    background-color: rgba(255, 0, 0, 0.1); 
-}
+            #popup {
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+                text-align: center;
+            }
 
-#searchResults {
-    max-height: calc(100% - 100px);
-    overflow-y: auto;
-    padding: 5px;
-    display: flex; 
-    flex-wrap: wrap; 
-    justify-content: flex-start; 
-    gap: 10px; 
-    width: calc(100% - 40px);
-    border: none;
-}
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: -55%; 
+                width: 45%;
+                height: 100%;
+                background-color: #f0f0f0;
+                border-right: 2px solid black;
+                padding: 20px;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+                transition: left 0.3s ease;
+                z-index: 1000;
+            }
 
-.hidden {
-    display: none;
-}
-</style>
-</head>
-<body>
+            #sidebar.open {
+                left: 0; 
+            }
 
-    <div class="container" id="mainContainer">
-        <div class="button-container">
-            <button id="changeGridButton" onclick="openPopup()">Change Grid Size</button>
-            <button id="saveButton" onclick="saveGrid()">Save Grid</button>
-            <button id="loadButton" onclick="loadGrid()">Load Grid</button>
+            input[type="text"] {
+                width: calc(100% - 20px);
+                padding: 15px;
+                margin-top: 10px;
+                font-size: 1.5rem;
+            }
+
+            input[type="text"] {
+                -moz-appearance: textfield;
+            }
+
+            input[type="text"]::-webkit-outer-spin-button,
+            input[type="text"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .card-image {
+                width: 150px; 
+                height: 210px; 
+                object-fit: cover;
+                margin: 5px; 
+            }
+
+            .selected-cell {
+                border: 2px dashed red; 
+                background-color: rgba(255, 0, 0, 0.1); 
+            }
+
+            #searchResults {
+                max-height: calc(100% - 100px);
+                overflow-y: auto;
+                padding: 5px;
+                display: flex; 
+                flex-wrap: wrap; 
+                justify-content: flex-start; 
+                gap: 10px; 
+                width: calc(100% - 40px);
+                border: none;
+            }
+
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="container" id="mainContainer">
+            <div class="button-container">
+                <button id="changeGridButton" onclick="openPopup()">Change Grid Size</button>
+                <button id="saveButton" onclick="saveGrid()">Save Grid</button>
+                <button id="loadButton" onclick="loadGrid()">Load Grid</button>
+            </div>
+            <div id="gridContainer" style="display: flex;">
+                <div id="grid" class="grid-container"></div>
+                <div id="secondGrid" class="grid-container" style="margin-left: 20px;"></div>
+            </div>
         </div>
-        <div id="gridContainer" style="display: flex;">
-            <div id="grid" class="grid-container"></div>
-            <div id="secondGrid" class="grid-container" style="margin-left: 20px;"></div>
-        </div>
-    </div>
-    
-    <div id="overlay">
-        <div id="popup">
-            <h2>Change Grid Size</h2>
-            <label>
-                Rows: <input type="text" id="rows" placeholder="Enter rows">
-            </label>
-            <label>
-                Columns: <input type="text" id="columns" placeholder="Enter columns">
-            </label>
-            <label>
-                Gap: <input type="text" id="gap" placeholder="Enter gap (px)" value="10">
-            </label>
-            <label>
-                <input type="checkbox" id="doubleSidedCheckbox"> Make double sided
-            </label>
-            <button onclick="generateGrid()">Generate Grid</button>
-            <button onclick="updateGrid()">Update Grid</button> <!-- New Button -->
-            <button onclick="closePopup()">Close</button>
-        </div>
-    </div>
 
-    
-    <div id="loadOverlay">
-        <div id="loadPopup">
-            <h2>Load Saved Grids</h2>
-            <div id="savedGridsList"></div>
-            <button onclick="closeLoadPopup()">Close</button>
+        <div id="overlay">
+            <div id="popup">
+                <h2>Change Grid Size</h2>
+                <label>
+                    Rows: <input type="text" id="rows" placeholder="Enter rows">
+                </label>
+                <label>
+                    Columns: <input type="text" id="columns" placeholder="Enter columns">
+                </label>
+                <label>
+                    Gap: <input type="text" id="gap" placeholder="Enter gap (px)" value="10">
+                </label>
+                <label>
+                    <input type="checkbox" id="doubleSidedCheckbox"> Make double sided
+                </label>
+                <button onclick="generateGrid()">Generate Grid</button>
+                <button onclick="updateGrid()">Update Grid</button> <!-- New Button -->
+                <button onclick="closePopup()">Close</button>
+            </div>
         </div>
-    </div>
 
-    
-    <div id="sidebar">
-        <h2>Search</h2>
-        <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
-        <button onclick="searchName()">Search</button>
-        <button onclick="closeSidebar()">Close</button>
-        <div id="searchResults"></div>
-    </div>
 
-    <script>
-        let selectedCell = null;
-        const gridData = []; 
-        let allPages = []; 
-        let allSecondPages = []; 
-        const secondGridData = []; // Added for second grid data
-        let gapSize = 10; 
-        let currentPage = 1;
-        let selectedGrid = '';
-        let isDoubleSided = false;
-        let savedSecondPages = [];
-        const checkbox = document.getElementById("doubleSidedCheckbox");
-        checkbox.addEventListener("change", () => {
-            const isDoubleSided = checkbox.checked;
+        <div id="loadOverlay">
+            <div id="loadPopup">
+                <h2>Load Saved Grids</h2>
+                <div id="savedGridsList"></div>
+                <button onclick="closeLoadPopup()">Close</button>
+            </div>
+        </div>
+
+
+        <div id="sidebar">
+            <h2>Search</h2>
+            <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
+            <button onclick="searchName()">Search</button>
+            <button onclick="closeSidebar()">Close</button>
+            <div id="searchResults"></div>
+        </div>
+
+        <script>
+            let selectedCell = null;
+            const gridData = []; 
+            let allPages = []; 
+            let allSecondPages = []; 
+            const secondGridData = [];
+            let gapSize = 10; 
+            let selectedGrid = '';
+            let isDoubleSided = false;
+            let savedSecondPages = [];
+            const checkbox = document.getElementById("doubleSidedCheckbox");
+            checkbox.addEventListener("change", () => {
+                const isDoubleSided = checkbox.checked;
         });
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeAllOverlays(); 
+    }
+    if (event.key === 'Enter') {
+        if (document.getElementById('searchInput') === document.activeElement) {
+            searchName(); 
+        }
+    }
+});
+
+function closeAllOverlays() {
+    closePopup(); 
+    closeLoadPopup();
+    closeSidebar(); 
+}
+
+function closeLoadPopup() {
+    document.getElementById('loadOverlay').style.display = 'none';
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('mainContainer').style.marginLeft = '0'; 
+    document.getElementById('saveButton').style.display = 'inline-block'; 
+    document.getElementById('loadButton').style.display = 'inline-block'; 
+    document.getElementById('changeGridButton').style.display = 'inline-block'; 
+}
 
         function openPopup() {
             closeSidebar(); 
@@ -246,32 +327,31 @@ input[type="text"]::-webkit-inner-spin-button {
         }
 
         function closeSidebar() {
-    const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
-    if (previousSelectedCell) {
-        previousSelectedCell.classList.remove('selected-cell'); 
-    }
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('mainContainer').style.marginLeft = '0'; 
-    selectedCell = null;
+            const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
+            if (previousSelectedCell) {
+                previousSelectedCell.classList.remove('selected-cell'); 
+            }
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('mainContainer').style.marginLeft = '0'; 
+            selectedCell = null;
 
-    // Show the page number when the sidebar closes
-    document.getElementById('saveButton').style.display = 'inline-block'; 
-    document.getElementById('loadButton').style.display = 'inline-block'; 
-    document.getElementById('changeGridButton').style.display = 'inline-block'; 
-}
+            document.getElementById('saveButton').style.display = 'inline-block'; 
+            document.getElementById('loadButton').style.display = 'inline-block'; 
+            document.getElementById('changeGridButton').style.display = 'inline-block'; 
+        }
 
-function updateSecondGridDisplay(secondGridData, gap) {
-    const secondGridContainer = document.getElementById('secondGrid');
-    secondGridContainer.innerHTML = ''; 
-    secondGridContainer.style.gridTemplateColumns = `repeat(${secondGridData[0].length}, 1fr)`;
-    secondGridContainer.style.gap = `${gap}px`;
+        function updateSecondGridDisplay(secondGridData, gap) {
+            const secondGridContainer = document.getElementById('secondGrid');
+            secondGridContainer.innerHTML = ''; 
+            secondGridContainer.style.gridTemplateColumns = `repeat(${secondGridData[0].length}, 1fr)`;
+            secondGridContainer.style.gap = `${gap}px`;
 
-    for (let r = 0; r < secondGridData.length; r++) {
-        for (let c = 0; c < secondGridData[r].length; c++) {
-            const gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-            gridItem.onclick = function () {
-                openSidebar(gridItem, 'secondGrid'); // Pass 'secondGrid' as the identifier
+            for (let r = 0; r < secondGridData.length; r++) {
+                for (let c = 0; c < secondGridData[r].length; c++) {
+                    const gridItem = document.createElement('div');
+                    gridItem.className = 'grid-item';
+                    gridItem.onclick = function () {
+                openSidebar(gridItem, 'secondGrid'); 
             };
 
             if (secondGridData[r][c]) {
@@ -280,7 +360,36 @@ function updateSecondGridDisplay(secondGridData, gap) {
                 imgElement.alt = secondGridData[r][c].name;
                 imgElement.className = 'card-image';
                 gridItem.appendChild(imgElement);
-            }
+
+                const hoverButton = document.createElement('button');
+                hoverButton.className = 'hover-button';
+                hoverButton.innerText = '...';
+
+        // Create the dropdown menu
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = 'dropdown-menu';
+        dropdownMenu.style.display = 'none';  // Initially hidden
+        
+        // Add "Delete card" option to dropdown menu
+        const deleteOption = document.createElement('div');
+        deleteOption.innerText = 'Delete Card';
+        deleteOption.className = 'dropdown-item';
+        deleteOption.onclick = function() {
+            deleteCardFromGrid(gridItem, r, c, secondGrid);
+            closeDropdownMenu(dropdownMenu);
+        };
+        dropdownMenu.appendChild(deleteOption);
+
+        // Append the dropdown menu to the grid item
+        gridItem.appendChild(dropdownMenu);
+                hoverButton.onclick = (e) => {
+                e.stopPropagation();  // Prevent event bubbling
+                toggleDropdownMenu(dropdownMenu); // Toggle visibility of dropdown
+            };
+            gridItem.appendChild(hoverButton);
+        }
+
+        
             secondGridContainer.appendChild(gridItem);
         }
     }
@@ -297,33 +406,23 @@ function generateGrid() {
         return;
     }
 
-    // Initialize main grid data
     const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
     gridData.length = 0;
     newGridData.forEach(row => gridData.push(row));
     allPages.push(gridData);
     updateGridDisplay(gap);
 
-    // Check if double-sided is selected
     if (document.getElementById('doubleSidedCheckbox').checked) {
-        if (allSecondPages.length === 0 && savedSecondPages.length > 0) {
-            // Restore saved data if it exists
-            allSecondPages = JSON.parse(JSON.stringify(savedSecondPages));
-        } else if (allSecondPages.length === 0) {
-            // Populate second grid data only if it hasn't been initialized or restored
-            const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
-            secondGridData.length = 0;
-            newSecondGridData.forEach(row => secondGridData.push(row));
-            allSecondPages.push(secondGridData);
-        }
+        const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+        secondGridData.length = 0;
+        newSecondGridData.forEach(row => secondGridData.push(row));
+        allSecondPages.push(secondGridData);
         updateSecondGridDisplay(secondGridData, gap);
-        console.log(`All array data: ${JSON.stringify(allSecondPages)}`);
     } else {
-        // Save current second grid data and clear the UI if not double-sided
         if (allSecondPages.length > 0) {
             savedSecondPages = JSON.parse(JSON.stringify(allSecondPages));
         }
-        allSecondPages.length = 0; // Clear all second pages data
+        allSecondPages.length = 0;
         document.getElementById('secondGrid').innerHTML = '';
     }
 
@@ -332,7 +431,7 @@ function generateGrid() {
 
 function updateGridDisplay(gap) {
     const gridContainer = document.getElementById('grid');
-    gridContainer.innerHTML = ''; 
+    gridContainer.innerHTML = ''; // Clear the grid before re-adding items
     gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`;
     gridContainer.style.gap = `${gap}px`;
 
@@ -341,15 +440,44 @@ function updateGridDisplay(gap) {
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-item';
             gridItem.onclick = function () {
-                openSidebar(gridItem, 'grid'); // Pass 'grid' as the identifier
+                openSidebar(gridItem, 'grid');
             };
 
             if (gridData[r][c]) {
                 const imgElement = document.createElement('img');
                 imgElement.src = gridData[r][c].imageUrl;
                 imgElement.alt = gridData[r][c].name;
-                imgElement.className = 'card-image'; 
+                imgElement.className = 'card-image';
                 gridItem.appendChild(imgElement);
+
+                // Create the hover button
+                const hoverButton = document.createElement('button');
+                hoverButton.className = 'hover-button';
+                hoverButton.innerText = '...';
+
+                // Create the dropdown menu
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                dropdownMenu.style.display = 'none';  // Initially hidden
+
+                // Add "Delete card" option to dropdown menu
+                const deleteOption = document.createElement('div');
+                deleteOption.innerText = 'Delete Card';
+                deleteOption.className = 'dropdown-item';
+                deleteOption.onclick = function() {
+                    deleteCardFromGrid(gridItem, r, c, 'grid');  // Correctly pass rowIndex and colIndex
+                    closeDropdownMenu(dropdownMenu);
+                };
+                dropdownMenu.appendChild(deleteOption);
+
+                // Append the dropdown menu to the grid item
+                gridItem.appendChild(dropdownMenu);
+
+                hoverButton.onclick = (e) => {
+                    e.stopPropagation();  // Prevent event bubbling
+                    toggleDropdownMenu(dropdownMenu); // Toggle visibility of dropdown
+                };
+                gridItem.appendChild(hoverButton);
             }
 
             gridContainer.appendChild(gridItem);
@@ -367,31 +495,32 @@ function updateGrid() {
         return;
     }
 
-    // Resize main grid data
+    // Initialize main grid data
     const newGridData = Array.from({ length: rows }, (_, r) => 
         Array.from({ length: columns }, (_, c) => (gridData[r]?.[c] || null))
     );
     gridData.length = 0;
     newGridData.forEach(row => gridData.push(row));
-    allPages[currentPage - 1] = gridData;
 
-    updateGridDisplay(gap); // Update the main grid display
+    updateGridDisplay(gap);
 
-    // Resize second grid if double-sided is active
+    // Initialize second grid data if double-sided grid is enabled
     if (document.getElementById('doubleSidedCheckbox').checked) {
         const newSecondGridData = Array.from({ length: rows }, (_, r) => 
             Array.from({ length: columns }, (_, c) => (secondGridData[r]?.[c] || null))
         );
         secondGridData.length = 0;
         newSecondGridData.forEach(row => secondGridData.push(row));
-        allSecondPages[currentPage - 1] = secondGridData;
-
-        updateSecondGridDisplay(secondGridData, gap); // Update second grid display
+        updateSecondGridDisplay(secondGridData, gap);
+    } else {
+        allSecondPages = [];
+        document.getElementById('secondGrid').innerHTML = ''; // Clear second grid if not double-sided
     }
 
-    gapSize = gap; // Update global gap size
+    gapSize = gap; 
     closePopup();
 }
+
 
 function openSidebar(gridItem, gridIdentifier) {
     const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
@@ -405,12 +534,8 @@ function openSidebar(gridItem, gridIdentifier) {
     document.getElementById('mainContainer').style.marginLeft = '50%'; 
     selectedCell = gridItem; 
 
-    // Store the grid identifier in a global or session variable if necessary
     selectedGrid = gridIdentifier;
 
-    console.log(`Clicked on a cell in ${selectedGrid}`);
-
-    // Hide the page number when the sidebar opens
     document.getElementById('saveButton').style.display = 'none'; 
     document.getElementById('loadButton').style.display = 'none'; 
     document.getElementById('changeGridButton').style.display = 'none'; 
@@ -419,32 +544,32 @@ function openSidebar(gridItem, gridIdentifier) {
 
 
 function searchName() {
-            const searchInput = document.getElementById('searchInput').value; 
-            const url = `https://api.pokemontcg.io/v2/cards?q=name:${searchInput}`; 
+    const searchInput = document.getElementById('searchInput').value; 
+    const url = `https://api.pokemontcg.io/v2/cards?q=name:${searchInput}`; 
 
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Api-Key': '29cb7c82-278a-4569-a6c7-c4854ab76da4'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                displaySearchResults(data); 
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Key': '29cb7c82-278a-4569-a6c7-c4854ab76da4'
         }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        displaySearchResults(data); 
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
 
-        function displaySearchResults(data) {
-            const searchResults = document.getElementById('searchResults');
+function displaySearchResults(data) {
+    const searchResults = document.getElementById('searchResults');
     searchResults.innerHTML = ''; 
 
     if (data.data && data.data.length > 0) {
@@ -475,10 +600,40 @@ function addCardToGrid(card, gridIdentifier) {
         imgElement.className = 'card-image'; 
         gridItem.appendChild(imgElement); 
 
+        // Create the hover button with '...' text
+        const hoverButton = document.createElement('button');
+        hoverButton.className = 'hover-button';
+        hoverButton.innerText = '...';
+        
+        // Create the dropdown menu
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = 'dropdown-menu';
+        dropdownMenu.style.display = 'none';  // Initially hidden
+        
+        // Add "Delete card" option to dropdown menu
+        const deleteOption = document.createElement('div');
+        deleteOption.innerText = 'Delete Card';
+        deleteOption.className = 'dropdown-item';
+        deleteOption.onclick = function() {
+            deleteCardFromGrid(gridItem, rowIndex, colIndex, gridIdentifier);
+            closeDropdownMenu(dropdownMenu);
+        };
+        dropdownMenu.appendChild(deleteOption);
+
+        // Append the dropdown menu to the grid item
+        gridItem.appendChild(dropdownMenu);
+
+        // Show the dropdown when the hover button is clicked
+        hoverButton.onclick = function(e) {
+            e.stopPropagation();  // Prevent event bubbling
+            toggleDropdownMenu(dropdownMenu); // Toggle visibility of dropdown
+
+        };
+        gridItem.appendChild(hoverButton);
+
         const rowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length); 
         const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; 
         
-        // Check which grid was clicked and update the corresponding grid data
         if (gridIdentifier === 'secondGrid') {
             secondGridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
         } else {
@@ -486,26 +641,49 @@ function addCardToGrid(card, gridIdentifier) {
         }
 
         gridItem.classList.remove('selected-cell'); 
-        console.log("gridData:", gridData);
-        console.log("secondGridData:", secondGridData);
         checkGridState(); 
     }
 }
-    
+
+function toggleDropdownMenu(menu) {
+    const allMenus = document.querySelectorAll('.dropdown-menu');
+    allMenus.forEach(m => {
+        if (m !== menu) m.style.display = 'none';  // Hide other menus
+    });
+    menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';  // Toggle visibility
+}
+
+// Function to close the dropdown menu
+function closeDropdownMenu(menu) {
+    menu.style.display = 'none';  // Close the dropdown
+}
+
+// Function to delete card from grid
+function deleteCardFromGrid(gridItem, rowIndex, colIndex, gridIdentifier) {
+    if (gridIdentifier === 'secondGrid') {
+        secondGridData[rowIndex][colIndex] = null; // Clear the second grid cell
+        document.getElementById('secondGrid').children[rowIndex * gridData[0].length + colIndex].innerHTML = ''; // Clear the display
+    } else {
+        gridItem.innerHTML = ''; // Clear the main grid cell
+    }
+    checkGridState(); // Ensure the buttons are updated after deletion
+}
+
+
 function checkGridState() {
     const saveButton = document.getElementById('saveButton');
     const loadButton = document.getElementById('loadButton');
     const changeGridButton = document.getElementById('changeGridButton');
 
     if (gridData.length > 0) {
-                saveButton.classList.remove('hidden'); 
-                loadButton.classList.remove('hidden'); 
-                changeGridButton.classList.remove('hidden'); 
-            } else {
-                saveButton.classList.add('hidden');
-                loadButton.classList.add('hidden');
-            }
-        }
+        saveButton.classList.remove('hidden'); 
+        loadButton.classList.remove('hidden'); 
+        changeGridButton.classList.remove('hidden'); 
+    } else {
+        saveButton.classList.add('hidden');
+        loadButton.classList.add('hidden');
+    }
+}
 
 function saveGrid() {
     const gridName = prompt('Enter a name for the grid:');
@@ -516,17 +694,15 @@ function saveGrid() {
 
     const gridJSON = JSON.stringify({
         data: gridData,
-        secondData: secondGridData, // Save secondGridData
+        secondData: secondGridData,
         isDoubleSided: document.getElementById('doubleSidedCheckbox').checked,
-        gapSize: parseInt(document.getElementById('gap').value) // Save gapSize
+        gapSize: parseInt(document.getElementById('gap').value)
     });
     localStorage.setItem(`savedGrid_${gridName}`, gridJSON);
     alert('Grid saved!');
-    console.log("GridData:", gridData);
-    console.log("secondGridData:", secondGridData);
 }
 
- function loadGrid() {
+function loadGrid() {
     closeSidebar();
     showLoadPopup(); 
 }
@@ -580,13 +756,11 @@ function loadSavedGrid(gridName) {
 
     const savedData = JSON.parse(gridJSON);
 
-    // Load the grid data
     gridData.length = 0;
     savedData.data.forEach(row => gridData.push(row));
     allPages = [gridData];
     updateGridDisplay(savedData.gapSize);
 
-    // Load the second grid data if double-sided
     if (savedData.isDoubleSided && savedData.secondData) {
         secondGridData.length = 0;
         savedData.secondData.forEach(row => secondGridData.push(row));
@@ -599,7 +773,6 @@ function loadSavedGrid(gridName) {
         document.getElementById('secondGrid').innerHTML = '';
     }
 
-    // Update the gap input field in the popup
     document.getElementById('gap').value = savedData.gapSize;
 
     closeLoadPopup();
@@ -612,12 +785,12 @@ function closeLoadPopup() {
 }
 
 function initializeGrid() {
-        document.getElementById('rows').value = 3;
-        document.getElementById('columns').value = 3;
-        document.getElementById('gap').value = 5;
-        document.getElementById('doubleSidedCheckbox').checked = false;
-        generateGrid();
-    }
-    </script>
+    document.getElementById('rows').value = 3;
+    document.getElementById('columns').value = 3;
+    document.getElementById('gap').value = 5;
+    document.getElementById('doubleSidedCheckbox').checked = false;
+    generateGrid();
+}
+</script>
 </body>
 </html>
