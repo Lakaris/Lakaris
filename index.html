@@ -131,6 +131,11 @@
                 transition: opacity 0.3s ease; /* Smooth transition for hover effect */
             }
 
+.grid-item.highlight-cell {
+    border: 2px dashed #00f; /* Highlight border when an image is dragged over a cell */
+    background-color: rgba(0, 0, 255, 0.1); /* Light blue highlight background */
+}
+
             .dropdown-item:hover {
                 background-color: #f0f0f0;
             }
@@ -287,6 +292,8 @@
             checkbox.addEventListener("change", () => {
                 const isDoubleSided = checkbox.checked;
         });
+            let draggedImage = null;
+            let sourceCell = null;
 
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
@@ -298,6 +305,69 @@ document.addEventListener('keydown', function(event) {
         }
     }
 });
+
+function enableDragAndDrop() {
+    const gridItems = document.querySelectorAll('.grid-item');
+
+    gridItems.forEach((gridItem) => {
+        gridItem.ondragstart = (e) => {
+            const imgElement = gridItem.querySelector('img');
+            if (imgElement) {
+                draggedImage = imgElement;
+                sourceCell = gridItem;
+                e.dataTransfer.setDragImage(new Image(), 0, 0); // Hide the default drag image
+            }
+        };
+
+        gridItem.ondragover = (e) => {
+            e.preventDefault(); // Allow dropping
+            if (gridItem !== sourceCell) {
+                gridItem.classList.add('highlight-cell');
+            }
+        };
+
+        gridItem.ondragleave = () => {
+            gridItem.classList.remove('highlight-cell');
+        };
+
+        gridItem.ondrop = (e) => {
+            e.preventDefault();
+            if (gridItem !== sourceCell && draggedImage) {
+                gridItem.classList.remove('highlight-cell');
+
+                const targetImage = gridItem.querySelector('img');
+                // Swap the images between the source and target cells
+                if (targetImage) {
+                    sourceCell.appendChild(targetImage);
+                }
+                gridItem.appendChild(draggedImage);
+
+                // Update the grid data
+                const sourceRowIndex = Math.floor(Array.from(sourceCell.parentNode.children).indexOf(sourceCell) / gridData[0].length);
+                const sourceColIndex = Array.from(sourceCell.parentNode.children).indexOf(sourceCell) % gridData[0].length;
+
+                const targetRowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length);
+                const targetColIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length;
+
+                // Swap grid data
+                const temp = gridData[sourceRowIndex][sourceColIndex];
+                gridData[sourceRowIndex][sourceColIndex] = gridData[targetRowIndex][targetColIndex];
+                gridData[targetRowIndex][targetColIndex] = temp;
+
+                // Reset drag variables
+                draggedImage = null;
+                sourceCell = null;
+            }
+        };
+
+        gridItem.ondragend = () => {
+            // Cleanup highlighted cells
+            document.querySelectorAll('.grid-item').forEach((item) => item.classList.remove('highlight-cell'));
+            draggedImage = null;
+            sourceCell = null;
+        };
+    });
+}
 
 function closeAllOverlays() {
     closePopup(); 
@@ -392,6 +462,7 @@ function closeSidebar() {
         
             secondGridContainer.appendChild(gridItem);
         }
+        enableDragAndDrop();
     }
 }
 
@@ -483,6 +554,7 @@ function updateGridDisplay(gap) {
             gridContainer.appendChild(gridItem);
         }
     }
+    enableDragAndDrop();
 }
 
 function updateGrid() {
