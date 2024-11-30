@@ -256,7 +256,7 @@
                 </label>
                 <button onclick="generateGrid()">Generate Grid</button>
                 <button onclick="updateGrid()">Update Grid</button> <!-- New Button -->
-                <button onclick="closePopup()">Close</button>
+                <button onclick="closePopupNoModifications()">Close</button>
             </div>
         </div>
 
@@ -279,6 +279,9 @@
         </div>
 
         <script>
+            let previousRows = 3
+            let previousColumns = 3
+            let previousGapSize = 5
             let selectedCell = null;
             const gridData = []; 
             let allPages = []; 
@@ -389,7 +392,18 @@ function closeSidebar() {
 
         function openPopup() {
             closeSidebar(); 
+            previousRows = parseInt(document.getElementById('rows').value);
+            previousColumns = parseInt(document.getElementById('columns').value);
+            previousGapSize = parseInt(document.getElementById('gap').value);
+            console.log(previousRows)
             document.getElementById('overlay').style.display = 'flex'; 
+        }
+
+        function closePopupNoModifications() {
+            document.getElementById('rows').value = previousRows;
+            document.getElementById('columns').value = previousColumns;
+            document.getElementById('gap').value = previousGapSize;
+            document.getElementById('overlay').style.display = 'none'; 
         }
 
         function closePopup() {
@@ -555,6 +569,7 @@ function updateGridDisplay(gap) {
         }
     }
     enableDragAndDrop();
+    updateGridInfo();
 }
 
 function updateGrid() {
@@ -809,6 +824,7 @@ function showLoadPopup() {
     });
 
     document.getElementById('loadOverlay').style.display = 'flex'; 
+    updateGridInfo();
 }
 
 function deleteSavedGrid(gridName) {
@@ -862,6 +878,20 @@ function initializeGrid() {
     document.getElementById('gap').value = 5;
     document.getElementById('doubleSidedCheckbox').checked = false;
     generateGrid();
+}
+
+function updateGridInfo() {
+    // Get the number of rows and columns from the gridData
+    const rows = gridData.length;
+    const columns = gridData[0] ? gridData[0].length : 0; // If gridData is not empty
+
+    // Update the rows and columns input fields
+    document.getElementById('rows').value = rows;
+    document.getElementById('columns').value = columns;
+
+    // Get the gap value from the grid container's style
+    const gap = parseInt(document.getElementById('grid').style.gap)
+    document.getElementById('gap').value = gap;
 }
 </script>
 </body>
