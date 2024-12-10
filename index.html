@@ -1,40 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-<body onload="initializeGrid()">
+<body onload="initializeGrid(); initializeLists();">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Custom Grid Generator</title>
         <style>
+            #searchOverlayHeader {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                display: flex;
+                gap: 10px; /* Space between the buttons */
+                z-index: 10;
+            }
+
+            #listButton, #settingsButton {
+                padding: 10px 15px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.3s ease;
+            }
+
+            #listButton:hover, #settingsButton:hover {
+                background-color: #0056b3;
+            }
+
             .container {
                 display: flex;
                 align-items: flex-start; /* Aligns items at the top */
-                justify-content: center; /* Center the items horizontally */
-                text-align: center; 
             }
 
             #mainContainer {
                 overflow-x: auto; /* Enable horizontal scrolling */
                 overflow-y: hidden; /* Disable vertical scrolling, if needed */
-                display: flex;
+                justify-content: center;
             }
 
             #gridContainer {
                 display: flex;
                 flex-wrap: nowrap; /* Prevent wrapping of grids */
-                justify-content: center;
                 overflow-x: auto; /* Allow horizontal scrolling */
-                padding-bottom: 10px; /* Prevent scrollbars from overlapping */
-                position: relative; /* Ensure proper positioning */
+                padding-bottom: 30px; /* Prevent scrollbars from overlapping */
                 max-width: 100%; /* Prevent grids from exceeding the container width */
+                overflow-y: visible;
+
             }
 
             .grid-container {
                 display: grid;
-                grid-template-rows: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust rows dynamically */
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust columns dynamically */
-                gap: 5px;
+                /*grid-template-rows: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust rows dynamically */
+                /*grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust columns dynamically */
                 overflow: visible; /* Ensure grid content isn't clipped */
+
+
+            }
+
+            #listOverlay {
+                position: fixed;
+                top: 10%;
+                left: 60%; /* Adjusted to move it further right */
+                width: 30%;
+                height: 70%; /* Taller overlay */
+                background-color: white;
+                border: 2px solid black;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+                display: none;
+                z-index: 1001;
+                overflow-y: auto;
+            }
+
+            #listPopup {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            #listSidebar {
+                flex: 1;
+                margin-bottom: 15px;
+                overflow-y: auto;
+                border-radius: 5px;
+                padding: 10px;
+                background-color: transparent;
+            }
+
+            #listSidebar ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            #listSidebar li {
+                padding: 5px 10px;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+                margin-bottom: 5px;
+                background-color: #fff;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                background-color: #f9f9f9;
+            }
+
+            #listSidebar li:hover {
+                background-color: #f0f0f0;
+            }
+
+            #backButton {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                padding: 5px 10px;
+                background-color: #ccc;
+                border: none;
+                cursor: pointer;
+                z-index: 100; /* Ensure the button is above other elements */
             }
 
             #loadOverlay {
@@ -295,25 +380,30 @@
         }
 
         #searchResults {
-            max-height: calc(100% - 100px);
             overflow-y: auto;
             padding: 5px;
-            display: flex; 
-            flex-wrap: wrap; 
+            display: flex;
+            flex-wrap: wrap;
             justify-content: flex-start; 
-            gap: 10px; 
-            width: calc(100% - 40px);
+            gap: 5px;
+            width: 100%;
             border: none;
+            height: auto;
+            max-height: 70%;
         }
 
         .hidden {
             display: none;
         }
         #gearMenuContainer {
-            position: fixed; /* Keep it in the top-right of the screen */
+            position: absolute;
             top: 10px;
             right: 10px;
-            z-index: 1000; /* Ensure it's above other elements */
+            z-index: 1000;
+        }
+
+        #gearMenuContainer:hover #gearMenu {
+            display: block;
         }
 
         #gearButton {
@@ -330,12 +420,11 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-/* Gear Menu Styles */
 #gearMenu {
     position: absolute;
     top: 50px;
     right: 10px;
-    display: flex;
+    display: inline-block;
     flex-direction: column;
     background-color: white;
     border: 1px solid #ccc;
@@ -379,14 +468,30 @@
         <!-- Grid Containers -->
         <div id="gridContainer" style="display: flex;">
             <div id="grid" class="grid-container"></div>
-            <div id="secondGrid" class="grid-container" style="margin-left: 20px;"></div>
+            <div id="secondGrid" class="grid-container"></div>
         </div>
     </div>
+
+<div id="listOverlay" class="bubble-overlay hidden">
+    <div id="listPopup">
+        <h2 id="listTitle">My Lists</h2> <!-- Title will change dynamically -->
+        <div id="listSidebar">
+            <ul id="listSidebarContent"></ul>
+        </div>
+        <button id="addNewListButton" onclick="addNewList()">Add new list</button>
+        <div id="listContent" class="list-content"></div> <!-- Container for the list content -->
+        <div style="margin-top: 20px; text-align: center;">
+            <button id="backButton" onclick="goBackToLists()" class="hidden">Back</button> <!-- Back button -->
+            <button onclick="closeListOverlay()">Close</button>
+        </div>
+    </div>
+</div>
+
 
 
     <div id="overlay">
         <div id="popup">
-            <h2>Change Grid Size</h2>
+            <h2>Modify Grid</h2>
             <label>
                 Rows: <input type="text" id="rows" placeholder="Enter rows">
             </label>
@@ -424,18 +529,22 @@
     </div>
 
 
-    <div id="sidebar">
-        <h2>Search</h2>
-        <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
-        <button onclick="searchName()">Search</button>
-        <button onclick="closeSidebar()">Close</button>
-        <div id="searchResults"></div>
+<div id="sidebar">
+    <div id="searchOverlayHeader">
+        <button id="listButton" onclick="openListOverlay()">List</button>
+        <button id="settingsButton">Settings</button>
     </div>
+    <h2>Search</h2>
+    <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
+    <button onclick="searchName()">Search</button>
+    <button onclick="closeSidebar()">Close</button>
+    <div id="searchResults"></div>
+</div>
 
     <script>
-        let previousRows = 3
-        let previousColumns = 3
-        let previousGapSize = 5
+        let previousRows = 3;
+        let previousColumns = 3;
+        let previousGapSize = 5;
         let selectedCell = null;
         const gridData = []; 
         let allPages = []; 
@@ -451,30 +560,22 @@
         let earlierCardObject = null
         const checkbox = document.getElementById("doubleSidedCheckbox");
         checkbox.addEventListener("change", () => {
-            const isDoubleSided = checkbox.checked;
+            isDoubleSided = checkbox.checked;
         });
         let draggedImage = null;
         let sourceCell = null;
+        let currentList = null;
+        let lists = null;
 
-        gearButton.addEventListener('click', (event) => {
-            event.stopPropagation();
-            isGearMenuOpen = !isGearMenuOpen;
-        });
+        gearMenuContainer.addEventListener('mouseenter', () => {
+    gearMenu.style.display = 'block';
+    isGearMenuOpen = true;
+});
 
-        document.getElementById('gearButton').addEventListener('click', () => {
-            const gearMenu = document.getElementById('gearMenu');
-            if (getComputedStyle(gearMenu).display === 'none') {
-                gearMenu.style.display = 'flex';
-                isGearMenuOpen = true;
-            } else {
-                gearMenu.style.display = 'none';
-                isGearMenuOpen = false;
-            }
-        });
-
-        document.addEventListener('click', (event) => {
-            gearMenu.style.display = 'none';
-        });
+        gearMenu.addEventListener('mouseleave', () => {
+    gearMenu.style.display = 'none';
+    isGearMenuOpen = false;
+});
 
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
@@ -492,6 +593,274 @@
     gridContainer.scrollLeft = 0; // Reset scroll position when regenerating grid
     gridContainer.style.overflowX = 'auto';
 }
+function openListOverlay() {
+    const listOverlay = document.getElementById("listOverlay");
+    listOverlay.style.display = "block";
+}
+
+function closeListOverlay() {
+    const listOverlay = document.getElementById("listOverlay");
+    listOverlay.style.display = "none";
+}
+
+function addNewList() {
+    const listName = prompt("Enter a name for your new list:");
+    if (listName) {
+        lists = getStoredLists(); // Retrieve the stored lists
+        let listCounter = localStorage.getItem("listCounter") ? parseInt(localStorage.getItem("listCounter")) : 0;
+
+        // Check if the list already exists in the object
+        const listExists = Object.values(lists).some((list) => list.name === listName);
+
+        if (!listExists) {
+            const newList = {
+                name: listName,
+                cards: []
+            };
+
+            // Add the new list to the 'lists' object using the listName as the key
+            lists[listCounter] = newList;  // Use listCounter to prevent overwriting any previous list
+            console.log('lists is currently', lists);
+            // Increment the listCounter by 1
+            listCounter++;
+
+            // Save the updated lists to localStorage
+            saveListsToLocalStorage(lists);
+
+            // Save the updated listCounter to localStorage
+            localStorage.setItem("listCounter", listCounter);
+
+            // Optionally set the current list
+            currentList = newList;
+
+            // Update the UI
+            displayLists();
+        } else {
+            alert("A list with this name already exists.");
+        }
+    }
+}
+
+
+// Function to retrieve stored lists from local storage
+function getStoredLists() {
+    const storedLists = localStorage.getItem("userLists");
+    const parsedLists = storedLists ? JSON.parse(storedLists) : [];
+    return parsedLists;
+}
+
+// Function to save lists to local storage
+function saveListsToLocalStorage(lists) {
+    // Ensure each list has the correct format
+    // Save the lists in the correct format
+    localStorage.setItem("userLists", JSON.stringify(lists));
+
+    // Optionally log what's being saved
+    console.log("Saving the following lists to localStorage:", lists);
+}
+
+
+// Function to delete a specific list with a confirmation prompt
+function deleteList(list) {
+    const listName = list.name; // Extract the name of the list
+    const confirmation = confirm(`Are you sure you want to delete the list "${listName}"? This action cannot be undone.`);
+    if (confirmation) {
+        // Retrieve the stored lists
+        lists = getStoredLists();
+
+        // Ensure `lists` is an array
+        if (Array.isArray(lists)) {
+            // Find the index of the list to delete
+            const index = lists.findIndex((list) => list.name === listName);
+            
+            if (index !== -1) {
+                // Remove the list from the array
+                lists.splice(index, 1);
+                saveListsToLocalStorage(lists); // Save updated lists
+                updateListCounter(); 
+                displayLists(); // Update the UI
+            } else {
+                alert(`List "${listName}" does not exist.`);
+            }
+        } else {
+            console.error("Lists structure is invalid. Expected an array.");
+        }
+    }
+}
+
+function updateListCounter() {
+    // Get the updated lists and count them
+    const lists = getStoredLists();
+    const listCount = Object.keys(lists).length;
+    localStorage.setItem("listCounter", listCount);  // Save the updated count
+}
+
+// Function to display lists in the sidebar
+function displayLists() {
+    lists = getStoredLists();
+    const listSidebar = document.getElementById("listSidebarContent");
+    listSidebar.innerHTML = ""; // Clear existing content
+    //console.log('lists is currently ', lists);
+    Object.values(lists).forEach((listName) => {
+        const listItem = document.createElement("li");
+        listItem.style.display = "flex";
+        listItem.style.alignItems = "center";
+        listItem.style.marginBottom = "10px";
+        listItem.style.padding = "5px"; // Add some padding to the list items
+
+        // List name
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = listName.name;
+        nameSpan.style.flex = "1"; // Push delete button to the right
+
+        // Delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.style.marginLeft = "10px";
+        deleteButton.onclick = () => deleteList(listName);
+
+        // Click event to select list
+        listItem.onclick = () => loadSelectedList(listName);
+
+        // Handle dragging over the list item
+        listItem.addEventListener("dragenter", (e) => {
+            e.preventDefault(); // Prevent default action to allow drop
+            listItem.style.backgroundColor = "#f0f0f0"; // Change color when dragged over
+        });
+
+        listItem.addEventListener("dragover", (e) => {
+            e.preventDefault(); // Prevent default action to allow drop
+        });
+
+        listItem.addEventListener("dragleave", () => {
+            listItem.style.backgroundColor = ""; // Reset color when dragged out
+        });
+
+        // Handle dropping a card onto the list
+        listItem.addEventListener("drop", (e) => {
+            e.preventDefault();
+            listItem.style.backgroundColor = ""; // Reset background color after drop
+
+            const draggedCard = e.dataTransfer.getData("text/plain"); // Get the dragged card's name (assuming this is set during the drag event)
+    
+    if (draggedCard) {
+        setCurrentList(listName); // Set the current list to the list the card is dropped into
+
+        // Add the dragged card to the current list's cards
+        currentList.cards.push({
+            name: earlierCardObject.name,
+            imageUrl: earlierCardObject.imageUrl
+        });
+
+        // Update the specific list within the 'lists' object
+        lists[listName] = currentList;  // Update the current list in the lists object
+        
+        // Save the updated 'lists' object to localStorage
+        saveListsToLocalStorage(lists);  // Save the entire lists object to localStorage
+    }
+});
+
+        listItem.appendChild(nameSpan);
+        listItem.appendChild(deleteButton);
+        listSidebar.appendChild(listItem);
+    });
+}
+
+// Function to load the selected list and clear the overlay content
+function loadSelectedList(listName) {
+    // Set the current list
+    setCurrentList(listName);
+
+    // Update the title
+    const listTitle = document.getElementById("listTitle");
+    listTitle.textContent = listName.name; // Display selected list name
+    listTitle.style.textAlign = "center";
+
+    // Clear the sidebar
+    const listSidebar = document.getElementById("listSidebarContent");
+    listSidebar.innerHTML = ""; // Clear list sidebar content
+
+    // Show the "Back" button
+    const backButton = document.getElementById("backButton");
+    backButton.classList.remove("hidden");
+
+    // Hide the "Add new list" button
+    const addNewListButton = document.getElementById("addNewListButton");
+    addNewListButton.classList.add("hidden");
+
+    // Populate the list content with images
+    const listContent = document.getElementById("listContent");
+    listContent.innerHTML = ""; // Clear any existing content
+
+    if (currentList.cards && currentList.cards.length > 0) {
+        currentList.cards.forEach((card) => {
+            const img = document.createElement("img");
+            img.src = card.imageUrl;
+            img.alt = card.name;
+            img.style.width = "100px";
+            img.style.height = "auto";
+            img.style.margin = "10px";
+            
+            // Prepend the image to the listContent so that new cards appear at the top
+            listContent.prepend(img);
+        });
+    } else {
+        listContent.textContent = "This list is empty.";
+    }
+}
+
+// Function to go back to "My Lists" view
+function goBackToLists() {
+    // Show the "My Lists" title and content
+    const listTitle = document.getElementById("listTitle");
+    listTitle.textContent = "My Lists";
+
+    // Clear the sidebar content and redisplay the lists
+    const listSidebar = document.getElementById("listSidebarContent");
+    listSidebar.innerHTML = ""; // Clear the list sidebar content
+    displayLists(); // Re-display the list of lists
+
+    // Hide the "Back" button
+    const backButton = document.getElementById("backButton");
+    backButton.classList.add("hidden");
+
+    // Show the "Add new list" button again
+    const addNewListButton = document.getElementById("addNewListButton");
+    addNewListButton.classList.remove("hidden");
+
+    // Clear the images/cards in the list content area (but keep the container)
+    const listContent = document.getElementById("listContent");
+    listContent.textContent = "";
+
+    // Option 1: If you're displaying images in individual elements, you can target them and clear
+    const images = listContent.querySelectorAll("img");  // Select all images inside listContent
+    images.forEach(img => img.remove()); // Remove each image from the DOM
+}
+
+
+
+// Function to initialize the list overlay on load
+function initializeLists() {
+    displayLists(); // Populate the list UI with stored data
+}
+
+function setCurrentList(listName) {
+    if (currentList && currentList.name === listName) {
+        return;
+    }
+    else
+    {
+        currentList = listName;
+    }
+
+    if (currentList === undefined || currentList === null) {
+        currentList = {
+            name: listName,
+            cards: []
+        };
+    }
+}
+
 
 function enableDragAndDrop() {
     const gridItems = document.querySelectorAll('.grid-item');
@@ -502,7 +871,6 @@ function enableDragAndDrop() {
             if (imgElement) {
                 draggedImage = imgElement;
                 sourceCell = gridItem;
-                //e.dataTransfer.setDragImage(new Image(), 0, 0); // Hide the default drag image
             }
         };
 
@@ -579,6 +947,7 @@ function closeAllOverlays() {
     closeLoadPopup();
     closeSavePopup();
     closeSidebar(); 
+    closeListOverlay();
 }
 
 function closeLoadPopup() {
@@ -686,6 +1055,7 @@ function generateGrid() {
     const rows = parseInt(document.getElementById('rows').value);
     const columns = parseInt(document.getElementById('columns').value);
     const gap = parseInt(document.getElementById('gap').value);
+    const container = document.querySelector('.container');
 
     if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
         alert("Please enter valid positive numbers for rows, columns, and gap.");
@@ -698,18 +1068,17 @@ function generateGrid() {
     allPages.push(gridData);
     updateGridDisplay(gap);
 
-    if (document.getElementById('doubleSidedCheckbox').checked) {
+    if (isDoubleSided) {
         const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
         secondGridData.length = 0;
         newSecondGridData.forEach(row => secondGridData.push(row));
         allSecondPages.push(secondGridData);
         updateSecondGridDisplay(secondGridData, gap);
+        secondGrid.style.marginLeft = '20px';
+        console.log('checked');
     } else {
-        if (allSecondPages.length > 0) {
-            savedSecondPages = JSON.parse(JSON.stringify(allSecondPages));
-        }
-        allSecondPages.length = 0;
         document.getElementById('secondGrid').innerHTML = '';
+        secondGrid.style.marginLeft = '0px';
     }
 
     closePopup();
@@ -817,9 +1186,9 @@ function openSidebar(gridItem, gridIdentifier) {
 
     selectedGrid = gridIdentifier;
 
-    document.getElementById('saveButton').style.display = 'none'; 
-    document.getElementById('loadButton').style.display = 'none'; 
-    document.getElementById('changeGridButton').style.display = 'none'; 
+    //document.getElementById('saveButton').style.display = 'none'; 
+    //document.getElementById('loadButton').style.display = 'none'; 
+    //document.getElementById('changeGridButton').style.display = 'none'; 
 }
 
 
@@ -1138,6 +1507,7 @@ function updateGridInfo() {
     const gap = parseInt(document.getElementById('grid').style.gap)
     document.getElementById('gap').value = gap;
 }
+
 </script>
 </body>
 </html>
