@@ -66,10 +66,46 @@
             overflow-y: auto;
         }
         #listPopup {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Make the popup take up the full height */
+}
+
+#listContent {
+  flex-grow: 1; /* Allow list content to take up available space */
+  overflow-y: auto; /* Allow scrolling if content exceeds height */
+  display: none;
+  padding-right: 20px;
+}
+
+#listPopup > div:last-child {
+  margin-top: auto; /* Push the buttons container to the bottom */
+  text-align: center;
+}
+
+#addNewListButton {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Style for the "Close" button */
+#closeListButton {
+    background-color: #f44336; /* Red background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#closeListButton:hover {
+  background-color: #e53935; /* Darker red on hover */
+}
+
         #listSidebar {
             flex: 1;
             margin-bottom: 15px;
@@ -418,12 +454,12 @@
        <div id="listSidebar">
           <ul id="listSidebarContent"></ul>
       </div>
-      <button id="addNewListButton" onclick="addNewList()">Add new list</button>
       <div id="listContent" class="list-content"></div>
+      <button id="addNewListButton" onclick="addNewList()">Add new list</button>
       <!-- Container for the list content -->
       <div style="margin-top: 20px; text-align: center;">
           <button id="backButton" onclick="goBackToLists()" class="hidden">Back</button> <!-- Back button -->
-          <button onclick="closeListOverlay()">Close</button>
+          <button id="closeListButton" onclick="closeListOverlay()">Close</button>
       </div>
   </div>
 </div>
@@ -540,7 +576,8 @@
 
 function displayListCards(listName) {
     const lists = getStoredLists(); 
-    const list = Object.values(lists).find(list => list.name.toLowerCase().replace(/\s+/g, '') === listName);
+    const list = Object.values(lists).find(list => list.name.toLowerCase().replace(/\s+/g, '') === listName) || null;
+    console.log('the list is ', list);
 
     const searchOverlay = document.getElementById('searchResults');
     searchOverlay.innerHTML = '';
@@ -567,6 +604,10 @@ function displayListCards(listName) {
         });
     } else {
         searchOverlay.innerHTML = '<p>No cards in this list.</p>';
+    }
+    if(list === null)
+    {
+        searchOverlay.innerHTML = '';
     }
 }
 
@@ -611,28 +652,36 @@ function addNewList() {
 
 function addAllListsToDropdown() {
     const selectElement = document.getElementById("listDisplayDropdown");
-    
     const currentValue = selectElement.value;
-    
+
+    // Reset the dropdown options
     selectElement.innerHTML = '';
 
+    // Create and append the "None" option
     const noneOption = document.createElement("option");
     noneOption.value = "";
     noneOption.textContent = "None";
     selectElement.appendChild(noneOption);
 
+    // Get the stored lists
     const lists = getStoredLists();
 
+    // Add options for all lists
     Object.values(lists).forEach((list) => {
         const optionElement = document.createElement("option");
         optionElement.value = list.name.toLowerCase().replace(/\s+/g, '');
         optionElement.textContent = list.name; 
-        
         selectElement.appendChild(optionElement);
     });
 
-    selectElement.value = currentValue;
+    // If the current value is not found, reset to "None"
+    if (!Object.values(lists).some(list => list.name.toLowerCase().replace(/\s+/g, '') === currentValue)) {
+        selectElement.value = ""; // Set to "None" if the current value no longer exists
+    } else {
+        selectElement.value = currentValue; // Otherwise, keep the current value
+    }
 }
+
 
 function getStoredLists() {
     const storedLists = localStorage.getItem("userLists");
@@ -662,6 +711,7 @@ function deleteList(list) {
                 updateListCounter(); 
                 displayLists(); 
                 addAllListsToDropdown();
+                displayListCards();
             } else {
                 alert(`List "${listName}" does not exist.`);
             }
@@ -751,17 +801,13 @@ function loadSelectedList(listName) {
     const backButton = document.getElementById("backButton");
     backButton.classList.remove("hidden");
 
-    const addNewListButton = document.getElementById("addNewListButton");
-    addNewListButton.classList.add("hidden");
-
     const listContent = document.getElementById("listContent");
     listContent.innerHTML = ""; 
+    listContent.classList.add("hidden");
+    listContent.style.display = "none"; 
 
-    listContent.style.display = "grid";
-    listContent.style.gridTemplateColumns = "repeat(3, 1fr)"; 
-    listContent.style.gap = "10px";
-    listContent.style.justifyItems = "center";
-    listContent.style.alignItems = "center";
+    const addNewListButton = document.getElementById("addNewListButton");
+    addNewListButton.classList.add("hidden");
 
     const newListContent = listContent.cloneNode(true);
     listContent.parentNode.replaceChild(newListContent, listContent);
@@ -804,7 +850,13 @@ function loadSelectedList(listName) {
 }
 
 function updateAndDisplayCrads(currentList) {
-    listContent.innerHTML = "";
+    listContent = document.getElementById("listContent");
+    listContent.innerHTML = ""; 
+
+    listContent.style.display = "grid";
+    listContent.style.gridTemplateColumns = "repeat(4, 1fr)"; 
+    listContent.style.gap = "10px";
+    listContent.style.minHeight = "70%";
     if (currentList.cards && currentList.cards.length > 0) {
         currentList.cards.forEach((card, index) => {
             const cardContainer = document.createElement("div");
@@ -902,7 +954,8 @@ function goBackToLists() {
     addNewListButton.classList.remove("hidden");
 
     const listContent = document.getElementById("listContent");
-    listContent.textContent = "";
+    listContent.style.removeProperty('min-height');
+    listContent.style.display = "none"; 
 
     const images = listContent.querySelectorAll("img"); 
     images.forEach(img => img.remove());
