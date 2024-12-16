@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-   <body onload="initializeGrid(); initializeLists();">
-      <head>
-         <meta charset="UTF-8">
-         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <title>Custom Grid Generator</title>
-         <style>
-            #searchOverlayHeader {
+<body onload="initializeGrid(); initializeLists();">
+  <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Custom Grid Generator</title>
+     <style>
+        #searchOverlayHeader {
             position: absolute;
             top: 10px;
             right: 10px;
             display: flex;
             gap: 10px; /* Space between the buttons */
             z-index: 10;
-            }
-            #listButton, #settingsButton {
+        }
+        #listButton, #settingsButton {
             padding: 10px 15px;
             background-color: #007bff;
             color: white;
@@ -23,34 +23,34 @@
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s ease;
-            }
-            #listButton:hover, #settingsButton:hover {
+        }
+        #listButton:hover, #settingsButton:hover {
             background-color: #0056b3;
-            }
-            .container {
+        }
+        .container {
             display: flex;
             align-items: flex-start; /* Aligns items at the top */
-            }
-            #mainContainer {
+        }
+        #mainContainer {
             overflow-x: auto; /* Enable horizontal scrolling */
             overflow-y: hidden; /* Disable vertical scrolling, if needed */
             justify-content: center;
-            }
-            #gridContainer {
+        }
+        #gridContainer {
             display: flex;
             flex-wrap: nowrap; /* Prevent wrapping of grids */
             overflow-x: auto; /* Allow horizontal scrolling */
             padding-bottom: 30px; /* Prevent scrollbars from overlapping */
             max-width: 100%; /* Prevent grids from exceeding the container width */
             overflow-y: visible;
-            }
-            .grid-container {
+        }
+        .grid-container {
             display: grid;
             /*grid-template-rows: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust rows dynamically */
             /*grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust columns dynamically */
             overflow: visible; /* Ensure grid content isn't clipped */
-            }
-            #listOverlay {
+        }
+        #listOverlay {
             position: fixed;
             top: 10%;
             left: 60%; /* Adjusted to move it further right */
@@ -64,25 +64,25 @@
             display: none;
             z-index: 1001;
             overflow-y: auto;
-            }
-            #listPopup {
+        }
+        #listPopup {
             display: flex;
             flex-direction: column;
             height: 100%;
-            }
-            #listSidebar {
+        }
+        #listSidebar {
             flex: 1;
             margin-bottom: 15px;
             overflow-y: auto;
             border-radius: 5px;
             padding: 10px;
             background-color: transparent;
-            }
-            #listSidebar ul {
+        }
+        #listSidebar ul {
             list-style-type: none;
             padding: 0;
-            }
-            #listSidebar li {
+        }
+        #listSidebar li {
             padding: 5px 10px;
             border: 1px solid #ddd;
             border-radius: 3px;
@@ -91,11 +91,11 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
             background-color: #f9f9f9;
-            }
-            #listSidebar li:hover {
+        }
+        #listSidebar li:hover {
             background-color: #f0f0f0;
-            }
-            #backButton {
+        }
+        #backButton {
             position: absolute;
             top: 10px;
             left: 10px;
@@ -104,8 +104,8 @@
             border: none;
             cursor: pointer;
             z-index: 100; /* Ensure the button is above other elements */
-            }
-            #loadOverlay {
+        }
+        #loadOverlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -116,15 +116,15 @@
             justify-content: center;
             align-items: center;
             z-index: 999;
-            }
-            #loadPopup {
+        }
+        #loadPopup {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             text-align: center;
-            }
-            #saveOverlay {
+        }
+        #saveOverlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -135,15 +135,15 @@
             justify-content: center;
             align-items: center;
             z-index: 999;
-            }
-            #savePopup {
+        }
+        #savePopup {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             text-align: center;
-            }
-            .grid-item {
+        }
+        .grid-item {
             background-color: white;
             border: 2px solid black;
             border-radius: 10px;
@@ -155,13 +155,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            }
-            #changeGridButton {
+        }
+        #changeGridButton {
             padding: 10px 20px;
             font-size: 1rem;
             margin-bottom: 10px;
-            }
-            button {
+        }
+        button {
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -169,8 +169,8 @@
             cursor: pointer;
             font-size: 14px;
             margin-top: 10px;
-            }
-            .button-container {
+        }
+        .button-container {
             position: fixed; 
             top: 20px; 
             right: 20px; 
@@ -180,15 +180,15 @@
             width: auto; 
             margin: 0; 
             z-index: 100; 
-            }
-            .button-container button {
+        }
+        .button-container button {
             margin-bottom: 5px; 
-            }
-            .grid-item {
+        }
+        .grid-item {
             position: relative; /* Important for positioning the button inside */
             overflow: hidden;
-            }
-            .grid-item .hover-button {
+        }
+        .grid-item .hover-button {
             z-index: 10;
             position: absolute;
             top: 5px;
@@ -203,11 +203,11 @@
             opacity: 0; /* Initial low opacity */
             transition: opacity 0.3s ease; /* Smooth transition for hover effect */
             z-index: 10;
-            }
-            .grid-item:hover .hover-button {
+        }
+        .grid-item:hover .hover-button {
             opacity: 1; /* Full visibility on hover */
-            }
-            .grid-item .dropdown-menu {
+        }
+        .grid-item .dropdown-menu {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid black;
@@ -217,30 +217,30 @@
             display: none;
             opacity: 0; /* Initial low opacity */
             transition: opacity 0.3s ease; /* Smooth transition for hover effect */
-            }
-            .grid-item:hover .dropdown-menu {
+        }
+        .grid-item:hover .dropdown-menu {
             opacity: 1; /* Full visibility on hover */
-            }
-            .dropdown-item {
+        }
+        .dropdown-item {
             padding: 5px;
             cursor: pointer;
             color: white; /* Text color to contrast */
             transition: opacity 0.3s ease; /* Smooth transition for hover effect */
-            }
-            #savedGridsList {
+        }
+        #savedGridsList {
             margin-bottom: 13%; /* Adjust the value as needed */
-            }
-            #loadedSavedGridsList {
+        }
+        #loadedSavedGridsList {
             margin-bottom: 13%; /* Adjust the value as needed */
-            }
-            .grid-item.highlight-cell {
+        }
+        .grid-item.highlight-cell {
             border: 2px dashed #00f; /* Highlight border when an image is dragged over a cell */
             background-color: rgba(0, 0, 255, 0.1); /* Light blue highlight background */
-            }
-            .dropdown-item:hover {
+        }
+        .dropdown-item:hover {
             background-color: #f0f0f0;
-            }
-            #overlay {
+        }
+        #overlay {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -252,8 +252,8 @@
             z-index: 999;
             transform: translate(-50%, -50%);
             box-sizing: border-box;
-            }
-            #popup {
+        }
+        #popup {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
@@ -263,25 +263,25 @@
             display: flex;
             flex-direction: column;
             border: 2px solid black;
-            }
-            h2 {
+        }
+        h2 {
             text-align: center; 
-            }
-            input,
-            label {
+        }
+        input,
+        label {
             width: 97%
-            }
-            label {
+        }
+        label {
             margin-top: 10px; 
-            }
-            .double-sided-container label {
+        }
+        .double-sided-container label {
             display: flex;
             white-space: nowrap;
-            }
-            .double-sided-container input[type="checkbox"] {
+        }
+        .double-sided-container input[type="checkbox"] {
             margin-right:70%;             /* Adjust the space between the checkbox and text */
-            }
-            #sidebar {
+        }
+        #sidebar {
             position: fixed;
             top: 0;
             left: -55%; 
@@ -293,41 +293,41 @@
             box-shadow: 2px 0 5px rgba(0,0,0,0.5);
             transition: left 0.3s ease;
             z-index: 1000;
-            }
-            #sidebar.open {
+        }
+        #sidebar.open {
             left: 0; 
-            }
-            input[type="text"] {
+        }
+        input[type="text"] {
             width: calc(100% - 20px);
             padding: 15px;
             margin-top: 10px;
             font-size: 1.5rem;
-            }
-            input[type="text"] {
+        }
+        input[type="text"] {
             -moz-appearance: textfield;
-            }
-            input[type="text"]::-webkit-outer-spin-button,
-            input[type="text"]::-webkit-inner-spin-button {
+        }
+        input[type="text"]::-webkit-outer-spin-button,
+        input[type="text"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
-            }
-            .card-image {
+        }
+        .card-image {
             width: 150px; 
             height: 210px; 
             object-fit: cover;
             margin: 5px; 
-            }
-            .card-image-search {
+        }
+        .card-image-search {
             width: 150px; 
             height: 210px; 
             object-fit: cover;
             margin: 5px; 
-            }
-            .selected-cell {
+        }
+        .selected-cell {
             border: 2px dashed red; 
             background-color: rgba(255, 0, 0, 0.1); 
-            }
-            #searchResults {
+        }
+        #searchResults {
             overflow-y: auto;
             padding: 5px;
             display: flex;
@@ -338,20 +338,20 @@
             border: none;
             height: auto;
             max-height: 70%;
-            }
-            .hidden {
+        }
+        .hidden {
             display: none;
-            }
-            #gearMenuContainer {
+        }
+        #gearMenuContainer {
             position: absolute;
             top: 10px;
             right: 10px;
             z-index: 1000;
-            }
-            #gearMenuContainer:hover #gearMenu {
+        }
+        #gearMenuContainer:hover #gearMenu {
             display: block;
-            }
-            #gearButton {
+        }
+        #gearButton {
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 50%;
@@ -363,8 +363,8 @@
             cursor: pointer;
             font-size: 18px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            }
-            #gearMenu {
+        }
+        #gearMenu {
             position: absolute;
             top: 50px;
             right: 10px;
@@ -376,8 +376,8 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 10px;
             z-index: 1000;
-            }
-            #gearMenu button {
+        }
+        #gearMenu button {
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -387,1110 +387,1207 @@
             margin-bottom: 5px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            }
-            /* Hover Effect for Buttons */
-            #gearMenu button:hover {
+        }
+        /* Hover Effect for Buttons */
+        #gearMenu button:hover {
             background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+ <div class="container" id="mainContainer">
+    <!-- Gear Menu -->
+    <div id="gearMenuContainer">
+       <button id="gearButton" aria-label="Toggle menu">⚙️</button>
+       <div id="gearMenu" class="hidden">
+          <button id="changeGridButton" onclick="openPopup()">Modify</button>
+          <button id="saveButton" onclick="saveGrid()">Save</button>
+          <button id="loadButton" onclick="loadGrid()">Load</button>
+      </div>
+  </div>
+  <!-- Grid Containers -->
+  <div id="gridContainer" style="display: flex;">
+   <div id="grid" class="grid-container"></div>
+   <div id="secondGrid" class="grid-container"></div>
+</div>
+</div>
+<div id="listOverlay" class="bubble-overlay hidden">
+    <div id="listPopup">
+       <h2 id="listTitle">My Lists</h2>
+       <!-- Title will change dynamically -->
+       <div id="listSidebar">
+          <ul id="listSidebarContent"></ul>
+      </div>
+      <button id="addNewListButton" onclick="addNewList()">Add new list</button>
+      <div id="listContent" class="list-content"></div>
+      <!-- Container for the list content -->
+      <div style="margin-top: 20px; text-align: center;">
+          <button id="backButton" onclick="goBackToLists()" class="hidden">Back</button> <!-- Back button -->
+          <button onclick="closeListOverlay()">Close</button>
+      </div>
+  </div>
+</div>
+<div id="overlay">
+    <div id="popup">
+       <h2>Modify Grid</h2>
+       <label>
+           Rows: <input type="text" id="rows" placeholder="Enter rows">
+       </label>
+       <label>
+           Columns: <input type="text" id="columns" placeholder="Enter columns">
+       </label>
+       <label>
+           Gap: <input type="text" id="gap" placeholder="Enter gap (px)" value="10">
+       </label>
+       <div class="double-sided-container">
+          <label>
+              Double sided<input type="checkbox" id="doubleSidedCheckbox">
+          </label>
+      </div>
+      <button onclick="generateGrid()">Generate Grid</button>
+      <button onclick="updateGrid()">Update Grid</button> <!-- New Button -->
+      <button onclick="closePopupNoModifications()">Close</button>
+  </div>
+</div>
+<div id="saveOverlay">
+    <div id="savePopup">
+       <h2>Save Grid</h2>
+       <div id="savedGridsList"></div>
+       <button onclick="saveNewPopup()">Save New</button>
+       <button onclick="closeSavePopup()">Close</button>
+   </div>
+</div>
+<div id="loadOverlay">
+    <div id="loadPopup">
+       <h2>Load Grid</h2>
+       <div id="loadedSavedGridsList"></div>
+       <button onclick="closeLoadPopup()">Close</button>
+   </div>
+</div>
+<div id="sidebar">
+    <div class="dropdown-container">
+        <label for="listDisplayDropdown">Display List:</label>
+        <select id="listDisplayDropdown"></select>
+    </div>
+    <div id="searchOverlayHeader">
+        <button id="listButton" onclick="openListOverlay()">List Manager</button>
+        <button id="settingsButton">Search Settings</button>
+    </div>
+    <h2>Card Search</h2>
+    <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
+    <button onclick="searchName()">Search</button>
+    <button onclick="closeSidebar()">Close</button>
+    <div id="searchResults"></div>
+</div>
+<script>
+    let listCardDragged = false;
+    let loadState = false;
+    let previousRows = 3;
+    let previousColumns = 3;
+    let previousGapSize = 5;
+    let selectedCell = null;
+    const gridData = []; 
+    let allPages = []; 
+    let allSecondPages = []; 
+    const secondGridData = [];
+    let gapSize = 10; 
+    let selectedGrid = '';
+    let isDoubleSided = false;
+    const gearButton = document.getElementById('gearButton');
+    const gearMenu = document.getElementById('gearMenu');
+    let isGearMenuOpen = false;
+    let savedSecondPages = [];
+    let earlierCardObject = null
+    const checkbox = document.getElementById("doubleSidedCheckbox");
+    checkbox.addEventListener("change", () => {
+        isDoubleSided = checkbox.checked;
+    });
+    let draggedImage = null;
+    let sourceCell = null;
+    let currentList = null;
+    let lists = null;
+
+    gearMenuContainer.addEventListener('mouseenter', () => {
+        gearMenu.style.display = 'block';
+        isGearMenuOpen = true;
+    });
+
+    gearMenu.addEventListener('mouseleave', () => {
+        gearMenu.style.display = 'none';
+        isGearMenuOpen = false;
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAllOverlays(); 
+        }
+        if (event.key === 'Enter') {
+            if (document.getElementById('searchInput') === document.activeElement) {
+                searchName(); 
             }
-         </style>
-      </head>
-      <body>
-         <div class="container" id="mainContainer">
-            <!-- Gear Menu -->
-            <div id="gearMenuContainer">
-               <button id="gearButton" aria-label="Toggle menu">⚙️</button>
-               <div id="gearMenu" class="hidden">
-                  <button id="changeGridButton" onclick="openPopup()">Modify</button>
-                  <button id="saveButton" onclick="saveGrid()">Save</button>
-                  <button id="loadButton" onclick="loadGrid()">Load</button>
-               </div>
-            </div>
-            <!-- Grid Containers -->
-            <div id="gridContainer" style="display: flex;">
-               <div id="grid" class="grid-container"></div>
-               <div id="secondGrid" class="grid-container"></div>
-            </div>
-         </div>
-         <div id="listOverlay" class="bubble-overlay hidden">
-            <div id="listPopup">
-               <h2 id="listTitle">My Lists</h2>
-               <!-- Title will change dynamically -->
-               <div id="listSidebar">
-                  <ul id="listSidebarContent"></ul>
-               </div>
-               <button id="addNewListButton" onclick="addNewList()">Add new list</button>
-               <div id="listContent" class="list-content"></div>
-               <!-- Container for the list content -->
-               <div style="margin-top: 20px; text-align: center;">
-                  <button id="backButton" onclick="goBackToLists()" class="hidden">Back</button> <!-- Back button -->
-                  <button onclick="closeListOverlay()">Close</button>
-               </div>
-            </div>
-         </div>
-         <div id="overlay">
-            <div id="popup">
-               <h2>Modify Grid</h2>
-               <label>
-               Rows: <input type="text" id="rows" placeholder="Enter rows">
-               </label>
-               <label>
-               Columns: <input type="text" id="columns" placeholder="Enter columns">
-               </label>
-               <label>
-               Gap: <input type="text" id="gap" placeholder="Enter gap (px)" value="10">
-               </label>
-               <div class="double-sided-container">
-                  <label>
-                  Double sided<input type="checkbox" id="doubleSidedCheckbox">
-                  </label>
-               </div>
-               <button onclick="generateGrid()">Generate Grid</button>
-               <button onclick="updateGrid()">Update Grid</button> <!-- New Button -->
-               <button onclick="closePopupNoModifications()">Close</button>
-            </div>
-         </div>
-         <div id="saveOverlay">
-            <div id="savePopup">
-               <h2>Save Grid</h2>
-               <div id="savedGridsList"></div>
-               <button onclick="saveNewPopup()">Save New</button>
-               <button onclick="closeSavePopup()">Close</button>
-            </div>
-         </div>
-         <div id="loadOverlay">
-            <div id="loadPopup">
-               <h2>Load Grid</h2>
-               <div id="loadedSavedGridsList"></div>
-               <button onclick="closeLoadPopup()">Close</button>
-            </div>
-         </div>
-         <div id="sidebar">
-            <div id="searchOverlayHeader">
-               <button id="listButton" onclick="openListOverlay()">List</button>
-               <button id="settingsButton">Settings</button>
-            </div>
-            <h2>Search</h2>
-            <input type="text" id="searchInput" placeholder="Enter name" style="font-size: 1.5rem; padding: 20px; width: calc(100% - 40px);">
-            <button onclick="searchName()">Search</button>
-            <button onclick="closeSidebar()">Close</button>
-            <div id="searchResults"></div>
-         </div>
-         <script>
-            let previousRows = 3;
-            let previousColumns = 3;
-            let previousGapSize = 5;
-            let selectedCell = null;
-            const gridData = []; 
-            let allPages = []; 
-            let allSecondPages = []; 
-            const secondGridData = [];
-            let gapSize = 10; 
-            let selectedGrid = '';
-            let isDoubleSided = false;
-            const gearButton = document.getElementById('gearButton');
-            const gearMenu = document.getElementById('gearMenu');
-            let isGearMenuOpen = false;
-            let savedSecondPages = [];
-            let earlierCardObject = null
-            const checkbox = document.getElementById("doubleSidedCheckbox");
-            checkbox.addEventListener("change", () => {
-                isDoubleSided = checkbox.checked;
-            });
-            let draggedImage = null;
-            let sourceCell = null;
-            let currentList = null;
-            let lists = null;
-            
-            gearMenuContainer.addEventListener('mouseenter', () => {
-            gearMenu.style.display = 'block';
-            isGearMenuOpen = true;
-            });
-            
-            gearMenu.addEventListener('mouseleave', () => {
-            gearMenu.style.display = 'none';
-            isGearMenuOpen = false;
-            });
-            
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
-                    closeAllOverlays(); 
-                }
-                if (event.key === 'Enter') {
-                    if (document.getElementById('searchInput') === document.activeElement) {
-                        searchName(); 
-                    }
-                }
-            });
-            
-            function adjustGridScroll() {
-                const gridContainer = document.getElementById('gridContainer');
-            gridContainer.scrollLeft = 0;
-            gridContainer.style.overflowX = 'auto';
-            }
-            function openListOverlay() {
-            const listOverlay = document.getElementById("listOverlay");
-            listOverlay.style.display = "block";
-            }
-            
-            function closeListOverlay() {
-            const listOverlay = document.getElementById("listOverlay");
-            listOverlay.style.display = "none";
-            }
-            
-            function addNewList() {
-            const listName = prompt("Enter a name for your new list:");
-            if (listName) {
-            lists = getStoredLists();
-            let listCounter = localStorage.getItem("listCounter") ? parseInt(localStorage.getItem("listCounter")) : 0;
-            
-            const listExists = Object.values(lists).some((list) => list.name === listName);
-            
-            if (!listExists) {
-                const newList = {
-                    name: listName,
-                    cards: []
+        }
+    });
+
+    function adjustGridScroll() {
+        const gridContainer = document.getElementById('gridContainer');
+        gridContainer.scrollLeft = 0;
+        gridContainer.style.overflowX = 'auto';
+    }
+
+    document.getElementById('listDisplayDropdown').addEventListener('change', function(event) {
+        displayListCards(event.target.value); 
+    });
+
+function displayListCards(listName) {
+    const lists = getStoredLists(); 
+    const list = Object.values(lists).find(list => list.name.toLowerCase().replace(/\s+/g, '') === listName);
+
+    const searchOverlay = document.getElementById('searchResults');
+    searchOverlay.innerHTML = '';
+
+    if (list && list.cards.length > 0) {
+        list.cards.forEach(card => {
+            const cardImg = document.createElement('img');
+            cardImg.src = card.imageUrl;
+            cardImg.alt = card.name;
+            cardImg.className = 'card-image-search';
+            cardImg.draggable = true;
+            cardImg.onclick = function() {
+                addCardToGrid(card, selectedGrid); 
+            };
+            cardImg.addEventListener('dragstart', function(e) {
+                listCardDragged = true;
+                draggedImage = cardImg.cloneNode(true);
+                earlierCardObject = {
+                    name: card.name,
+                    imageUrl: card.imageUrl
                 };
-            
-                lists[listCounter] = newList; 
-                console.log('lists is currently', lists);
-                listCounter++;
-                saveListsToLocalStorage(lists);
-                localStorage.setItem("listCounter", listCounter);
-                currentList = newList;
-                displayLists();
+            });
+            searchOverlay.appendChild(cardImg);
+        });
+    } else {
+        searchOverlay.innerHTML = '<p>No cards in this list.</p>';
+    }
+}
+
+
+function openListOverlay() {
+    const listOverlay = document.getElementById("listOverlay");
+    listOverlay.style.display = "block";
+}
+
+function closeListOverlay() {
+    const listOverlay = document.getElementById("listOverlay");
+    listOverlay.style.display = "none";
+}
+
+function addNewList() {
+    const listName = prompt("Enter a name for your new list:");
+    if (listName) {
+        lists = getStoredLists();
+        let listCounter = localStorage.getItem("listCounter") ? parseInt(localStorage.getItem("listCounter")) : 0;
+
+        const listExists = Object.values(lists).some((list) => list.name === listName);
+
+        if (!listExists) {
+            const newList = {
+                name: listName,
+                cards: []
+            };
+
+            lists[listCounter] = newList; 
+            console.log('lists is currently', lists);
+            listCounter++;
+            saveListsToLocalStorage(lists);
+            localStorage.setItem("listCounter", listCounter);
+            currentList = newList;
+            displayLists();
+            addAllListsToDropdown();
+        } else {
+            alert("A list with this name already exists.");
+        }
+    }
+}
+
+function addAllListsToDropdown() {
+    const selectElement = document.getElementById("listDisplayDropdown");
+    
+    const currentValue = selectElement.value;
+    
+    selectElement.innerHTML = '';
+
+    const noneOption = document.createElement("option");
+    noneOption.value = "";
+    noneOption.textContent = "None";
+    selectElement.appendChild(noneOption);
+
+    const lists = getStoredLists();
+
+    Object.values(lists).forEach((list) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = list.name.toLowerCase().replace(/\s+/g, '');
+        optionElement.textContent = list.name; 
+        
+        selectElement.appendChild(optionElement);
+    });
+
+    selectElement.value = currentValue;
+}
+
+function getStoredLists() {
+    const storedLists = localStorage.getItem("userLists");
+    const parsedLists = storedLists ? JSON.parse(storedLists) : [];
+    return parsedLists;
+}
+
+function saveListsToLocalStorage(lists) {
+    localStorage.setItem("userLists", JSON.stringify(lists));
+}
+
+
+function deleteList(list) {
+    const listName = list.name; 
+    const confirmation = confirm(`Are you sure you want to delete the list "${listName}"? This action cannot be undone.`);
+    if (confirmation) {
+        lists = getStoredLists();
+
+        console.log('lists ', list);
+
+        if (Array.isArray(lists)) {
+            const index = lists.findIndex((list) => list.name === listName);
+
+            if (index !== -1) {
+                lists.splice(index, 1);
+                saveListsToLocalStorage(lists); 
+                updateListCounter(); 
+                displayLists(); 
+                addAllListsToDropdown();
             } else {
-                alert("A list with this name already exists.");
+                alert(`List "${listName}" does not exist.`);
             }
-            }
-            }
+        } else {
+            console.error("Lists structure is invalid. Expected an array.");
+        }
+    }
+}
+
+function updateListCounter() {
+    const lists = getStoredLists();
+    const listCount = Object.keys(lists).length;
+    localStorage.setItem("listCounter", listCount); 
+}
+
+function displayLists() {
+    lists = getStoredLists();
+    const listSidebar = document.getElementById("listSidebarContent");
+    listSidebar.innerHTML = "";
+    Object.values(lists).forEach((listName) => {
+        const listItem = document.createElement("li");
+        listItem.style.display = "flex";
+        listItem.style.alignItems = "center";
+        listItem.style.marginBottom = "10px";
+        listItem.style.padding = "5px";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = listName.name;
+        nameSpan.style.flex = "1";
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.style.marginLeft = "10px";
+        deleteButton.onclick = (event) => {
+        event.stopPropagation();
+        deleteList(listName);
+        };
+        listItem.onclick = () => loadSelectedList(listName);
+
+        listItem.addEventListener("dragenter", (e) => {
+            e.preventDefault();
+            listItem.style.backgroundColor = "#f0f0f0";
+        });
+
+        listItem.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
+
+        listItem.addEventListener("dragleave", () => {
+            listItem.style.backgroundColor = "";
+        });
+
+        listItem.addEventListener("drop", (e) => {
+            e.preventDefault();
+            listItem.style.backgroundColor = "";
             
-            function getStoredLists() {
-            const storedLists = localStorage.getItem("userLists");
-            const parsedLists = storedLists ? JSON.parse(storedLists) : [];
-            return parsedLists;
-            }
-            
-            function saveListsToLocalStorage(lists) {
-            localStorage.setItem("userLists", JSON.stringify(lists));
-            }
-            
-            
-            function deleteList(list) {
-            const listName = list.name; 
-            const confirmation = confirm(`Are you sure you want to delete the list "${listName}"? This action cannot be undone.`);
-            if (confirmation) {
-            lists = getStoredLists();
-            
-            console.log('lists ', list);
-            
-            if (Array.isArray(lists)) {
-                const index = lists.findIndex((list) => list.name === listName);
-                
-                if (index !== -1) {
-                    lists.splice(index, 1);
-                    saveListsToLocalStorage(lists); 
-                    updateListCounter(); 
-                    displayLists(); 
-                } else {
-                    alert(`List "${listName}" does not exist.`);
-                }
-            } else {
-                console.error("Lists structure is invalid. Expected an array.");
-            }
-            }
-            }
-            
-            function updateListCounter() {
-            const lists = getStoredLists();
-            const listCount = Object.keys(lists).length;
-            localStorage.setItem("listCounter", listCount); 
-            }
-            
-            function displayLists() {
-            lists = getStoredLists();
-            const listSidebar = document.getElementById("listSidebarContent");
-            listSidebar.innerHTML = "";
-            Object.values(lists).forEach((listName) => {
-            const listItem = document.createElement("li");
-            listItem.style.display = "flex";
-            listItem.style.alignItems = "center";
-            listItem.style.marginBottom = "10px";
-            listItem.style.padding = "5px";
-            
-            const nameSpan = document.createElement("span");
-            nameSpan.textContent = listName.name;
-            nameSpan.style.flex = "1";
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.style.marginLeft = "10px";
-            deleteButton.onclick = () => deleteList(listName);
-            
-            listItem.onclick = () => loadSelectedList(listName);
-            
-            listItem.addEventListener("dragenter", (e) => {
-                e.preventDefault();
-                listItem.style.backgroundColor = "#f0f0f0";
-            });
-            
-            listItem.addEventListener("dragover", (e) => {
-                e.preventDefault();
-            });
-            
-            listItem.addEventListener("dragleave", () => {
-                listItem.style.backgroundColor = "";
-            });
-            
-            listItem.addEventListener("drop", (e) => {
-                e.preventDefault();
-                listItem.style.backgroundColor = "";
-            
-                const draggedCard = e.dataTransfer.getData("text/plain");
+            const draggedCard = e.dataTransfer.getData("text/plain");
             
             if (draggedCard) {
-            setCurrentList(listName);
+                setCurrentList(listName);
+
+                currentList.cards.push({
+                    name: earlierCardObject.name,
+                    imageUrl: earlierCardObject.imageUrl
+                });
+
+                lists[listName] = currentList; 
+                saveListsToLocalStorage(lists);
+            }
+        });
+
+        listItem.appendChild(nameSpan);
+        listItem.appendChild(deleteButton);
+        listSidebar.appendChild(listItem);
+    });
+}
+
+function loadSelectedList(listName) {
+    setCurrentList(listName);
+
+    const listTitle = document.getElementById("listTitle");
+    listTitle.textContent = listName.name; 
+    listTitle.style.textAlign = "center";
+
+    const listSidebar = document.getElementById("listSidebarContent");
+    listSidebar.style.display = "none"; 
+
+    const backButton = document.getElementById("backButton");
+    backButton.classList.remove("hidden");
+
+    const addNewListButton = document.getElementById("addNewListButton");
+    addNewListButton.classList.add("hidden");
+
+    const listContent = document.getElementById("listContent");
+    listContent.innerHTML = ""; 
+
+    listContent.style.display = "grid";
+    listContent.style.gridTemplateColumns = "repeat(3, 1fr)"; 
+    listContent.style.gap = "10px";
+    listContent.style.justifyItems = "center";
+    listContent.style.alignItems = "center";
+
+    const newListContent = listContent.cloneNode(true);
+    listContent.parentNode.replaceChild(newListContent, listContent);
+
+    newListContent.addEventListener("dragover", (e) => e.preventDefault());
+    newListContent.addEventListener("dragstart", (e) => {
+        listCardDragged = false;
+    });
+    newListContent.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        if (listCardDragged) {
+           newListContent.style.backgroundColor = "#f0f0f0";
+        }
+    });
+    newListContent.addEventListener("dragleave", () => {
+        newListContent.style.backgroundColor = "";
+    });
+    newListContent.addEventListener("drop", (e) => {
+        e.preventDefault();
+        newListContent.style.backgroundColor = "";
+
+        const draggedCard = e.dataTransfer.getData("text/plain");
+        if (draggedCard && listCardDragged) {
             
             currentList.cards.push({
                 name: earlierCardObject.name,
                 imageUrl: earlierCardObject.imageUrl
             });
-            
-            lists[listName] = currentList; 
             saveListsToLocalStorage(lists);
-            }
-            });
-            
-            listItem.appendChild(nameSpan);
-            listItem.appendChild(deleteButton);
-            listSidebar.appendChild(listItem);
-            });
-            }
-            
-            function loadSelectedList(listName) {
-            setCurrentList(listName);
-            
-            const listTitle = document.getElementById("listTitle");
-            listTitle.textContent = listName.name; 
-            listTitle.style.textAlign = "center";
-            
-            const listSidebar = document.getElementById("listSidebarContent");
-            listSidebar.style.display = "none"; 
-            
-            const backButton = document.getElementById("backButton");
-            backButton.classList.remove("hidden");
-            
-            const addNewListButton = document.getElementById("addNewListButton");
-            addNewListButton.classList.add("hidden");
-            
-            const listContent = document.getElementById("listContent");
-            listContent.innerHTML = ""; 
-            
-            listContent.style.display = "grid";
-            listContent.style.gridTemplateColumns = "repeat(3, 1fr)"; 
-            listContent.style.gap = "10px";
-            listContent.style.justifyItems = "center";
-            listContent.style.alignItems = "center";
-            
-            const newListContent = listContent.cloneNode(true);
-            listContent.parentNode.replaceChild(newListContent, listContent);
-            
-            newListContent.addEventListener("dragover", (e) => e.preventDefault());
-            newListContent.addEventListener("dragenter", (e) => {
-            e.preventDefault();
-            newListContent.style.backgroundColor = "#f0f0f0";
-            });
-            newListContent.addEventListener("dragleave", () => {
-            newListContent.style.backgroundColor = "";
-            });
-            newListContent.addEventListener("drop", (e) => {
-            e.preventDefault();
-            newListContent.style.backgroundColor = "";
-            
-            const draggedCard = e.dataTransfer.getData("text/plain");
-            if (draggedCard) {
-                console.log('current list is ', currentList);
-            
-                currentList.cards.push({
-                    name: earlierCardObject.name,
-                    imageUrl: earlierCardObject.imageUrl
-                });
-                console.log("Now updated list ", currentList);
-                saveListsToLocalStorage(lists);
-                updateAndDisplayCrads(currentList);
-            }
-            });
-            
             updateAndDisplayCrads(currentList);
-            }
+        }
+        const selectedListName = document.getElementById('listDisplayDropdown').value;
+        if (currentList.name === selectedListName) {
+            displayListCards(selectedListName);
+        }
+
+    });
+
+    updateAndDisplayCrads(currentList);
+}
+
+function updateAndDisplayCrads(currentList) {
+    listContent.innerHTML = "";
+    if (currentList.cards && currentList.cards.length > 0) {
+        currentList.cards.forEach((card, index) => {
+            const cardContainer = document.createElement("div");
+            cardContainer.style.position = "relative";
+            cardContainer.style.display = "inline-block";
+
+            const img = document.createElement("img");
+            img.src = card.imageUrl;
+            img.alt = card.name;
             
+            img.style.width = "100%";
+            img.style.height = "auto";
+            img.style.maxWidth = "200px";
             
-            function updateAndDisplayCrads(currentList) {
+            const menuButton = document.createElement("button");
+            menuButton.textContent = "...";
+            menuButton.style.position = "absolute";
+            menuButton.style.top = "5px";
+            menuButton.style.right = "5px";
+            menuButton.style.background = "rgba(0, 0, 0, 0.7)";
+            menuButton.style.color = "#fff";
+            menuButton.style.border = "none";
+            menuButton.style.borderRadius = "50%";
+            menuButton.style.padding = "5px";
+            menuButton.style.cursor = "pointer";
+            menuButton.style.display = "none";
             
-            listContent.innerHTML = "";
-            if (currentList.cards && currentList.cards.length > 0) {
-            currentList.cards.forEach((card, index) => {
-                const cardContainer = document.createElement("div");
-                cardContainer.style.position = "relative";
-                cardContainer.style.display = "inline-block";
-                
-                const img = document.createElement("img");
-                img.src = card.imageUrl;
-                img.alt = card.name;
-            
-                img.style.width = "100%";
-                img.style.height = "auto";
-                img.style.maxWidth = "200px";
-            
-                const menuButton = document.createElement("button");
-                menuButton.textContent = "...";
-                menuButton.style.position = "absolute";
-                menuButton.style.top = "5px";
-                menuButton.style.right = "5px";
-                menuButton.style.background = "rgba(0, 0, 0, 0.7)";
-                menuButton.style.color = "#fff";
-                menuButton.style.border = "none";
-                menuButton.style.borderRadius = "50%";
-                menuButton.style.padding = "5px";
-                menuButton.style.cursor = "pointer";
-                menuButton.style.display = "none";
-            
-                cardContainer.addEventListener("mouseenter", () => {
-                    menuButton.style.display = "block";
-                });
-            
-                cardContainer.addEventListener("mouseleave", () => {
-                    menuButton.style.display = "none";
-                });
-                
-                const dropdown = document.createElement("div");
-                dropdown.style.position = "absolute";
-                dropdown.style.top = "30px";
-                dropdown.style.right = "0";
-                dropdown.style.background = "#fff";
-                dropdown.style.border = "1px solid #ccc";
-                dropdown.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.1)";
-                dropdown.style.padding = "10px";
-                dropdown.style.display = "none";
-                dropdown.style.zIndex = "10";
-            
-                const deleteOption = document.createElement("button");
-                deleteOption.textContent = "Delete";
-                deleteOption.style.background = "#f44336";
-                deleteOption.style.color = "#fff";
-                deleteOption.style.border = "none";
-                deleteOption.style.padding = "5px 10px";
-                deleteOption.style.cursor = "pointer";
-                deleteOption.style.borderRadius = "3px";
-            
-                menuButton.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
-                });
-            
-                deleteOption.addEventListener("click", () => {
-                    currentList.cards.splice(index, 1);
-                    saveListsToLocalStorage(lists);
-                    loadSelectedList(currentList);
-                });
-            
-                document.addEventListener("click", () => {
-                    dropdown.style.display = "none";
-                });
-            
-                dropdown.appendChild(deleteOption);
-                cardContainer.appendChild(img);
-                cardContainer.appendChild(menuButton);
-                cardContainer.appendChild(dropdown);
-                listContent.appendChild(cardContainer);
+            cardContainer.addEventListener("mouseenter", () => {
+                menuButton.style.display = "block";
             });
-            } else {
-            listContent.textContent = "This list is empty.";
+            
+            cardContainer.addEventListener("mouseleave", () => {
+                menuButton.style.display = "none";
+            });
+
+            const dropdown = document.createElement("div");
+            dropdown.style.position = "absolute";
+            dropdown.style.top = "30px";
+            dropdown.style.right = "0";
+            dropdown.style.background = "#fff";
+            dropdown.style.border = "1px solid #ccc";
+            dropdown.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.1)";
+            dropdown.style.padding = "10px";
+            dropdown.style.display = "none";
+            dropdown.style.zIndex = "10";
+            
+            const deleteOption = document.createElement("button");
+            deleteOption.textContent = "Delete";
+            deleteOption.style.background = "#f44336";
+            deleteOption.style.color = "#fff";
+            deleteOption.style.border = "none";
+            deleteOption.style.padding = "5px 10px";
+            deleteOption.style.cursor = "pointer";
+            deleteOption.style.borderRadius = "3px";
+            
+            menuButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+            });
+            
+            deleteOption.addEventListener("click", () => {
+                currentList.cards.splice(index, 1);
+                saveListsToLocalStorage(lists);
+                loadSelectedList(currentList);
+            });
+            
+            document.addEventListener("click", () => {
+                dropdown.style.display = "none";
+            });
+            
+            dropdown.appendChild(deleteOption);
+            cardContainer.appendChild(img);
+            cardContainer.appendChild(menuButton);
+            cardContainer.appendChild(dropdown);
+            listContent.appendChild(cardContainer);
+        });
+    } else {
+        listContent.textContent = "This list is empty.";
+    }
+}
+
+function goBackToLists() {
+    const listTitle = document.getElementById("listTitle");
+    listTitle.textContent = "List Manager";
+
+    const listSidebar = document.getElementById("listSidebarContent");
+    listSidebar.innerHTML = "";
+    listSidebar.style.display = ""
+    displayLists();
+
+    const backButton = document.getElementById("backButton");
+    backButton.classList.add("hidden");
+
+    const addNewListButton = document.getElementById("addNewListButton");
+    addNewListButton.classList.remove("hidden");
+
+    const listContent = document.getElementById("listContent");
+    listContent.textContent = "";
+
+    const images = listContent.querySelectorAll("img"); 
+    images.forEach(img => img.remove());
+}
+
+function initializeLists() {
+    displayLists();
+    addAllListsToDropdown();
+}
+
+function setCurrentList(listName) {
+    if (currentList && currentList.name === listName) {
+        return;
+    }
+    else
+    {
+        currentList = listName;
+    }
+
+    if (currentList === undefined || currentList === null) {
+        currentList = {
+            name: listName,
+            cards: []
+        };
+    }
+}
+
+
+function enableDragAndDrop() {
+    const gridItems = document.querySelectorAll('.grid-item');
+
+    gridItems.forEach((gridItem) => {
+        gridItem.ondragstart = (e) => {
+            const imgElement = gridItem.querySelector('img');
+            if (imgElement) {
+                draggedImage = imgElement;
+                sourceCell = gridItem;
             }
+        };
+
+        gridItem.ondragover = (e) => {
+            e.preventDefault();
+            if (gridItem !== sourceCell) {
+                gridItem.classList.add('highlight-cell');
             }
-            
-            function goBackToLists() {
-            const listTitle = document.getElementById("listTitle");
-            listTitle.textContent = "My Lists";
-            
-            const listSidebar = document.getElementById("listSidebarContent");
-            listSidebar.innerHTML = "";
-            listSidebar.style.display = ""
-            displayLists();
-            
-            const backButton = document.getElementById("backButton");
-            backButton.classList.add("hidden");
-            
-            const addNewListButton = document.getElementById("addNewListButton");
-            addNewListButton.classList.remove("hidden");
-            
-            const listContent = document.getElementById("listContent");
-            listContent.textContent = "";
-            
-            const images = listContent.querySelectorAll("img"); 
-            images.forEach(img => img.remove());
-            }
-            
-            function initializeLists() {
-            displayLists();
-            }
-            
-            function setCurrentList(listName) {
-            if (currentList && currentList.name === listName) {
-            return;
-            }
-            else
-            {
-            currentList = listName;
-            }
-            
-            if (currentList === undefined || currentList === null) {
-            currentList = {
-                name: listName,
-                cards: []
-            };
-            }
-            }
-            
-            
-            function enableDragAndDrop() {
-            const gridItems = document.querySelectorAll('.grid-item');
-            
-            gridItems.forEach((gridItem) => {
-            gridItem.ondragstart = (e) => {
-                const imgElement = gridItem.querySelector('img');
-                if (imgElement) {
-                    draggedImage = imgElement;
-                    sourceCell = gridItem;
-                }
-            };
-            
-            gridItem.ondragover = (e) => {
-                e.preventDefault();
-                if (gridItem !== sourceCell) {
-                    gridItem.classList.add('highlight-cell');
-                }
-            };
-            
-            gridItem.ondragleave = () => {
-                gridItem.classList.remove('highlight-cell');
-            };
-            
-            gridItem.ondrop = (e) => {
-                e.preventDefault();
+        };
+
+        gridItem.ondragleave = () => {
+            gridItem.classList.remove('highlight-cell');
+        };
+
+        gridItem.ondrop = (e) => {
+            e.preventDefault();
             
             const isSecondGrid = gridItem.closest('#secondGrid') !== null; 
             const currentGridData = isSecondGrid ? secondGridData : gridData;
             
             if (gridItem !== sourceCell && draggedImage && !draggedImage.classList.contains('card-image-search')) {
-            console.log('not search result');
-            gridItem.classList.remove('highlight-cell');
-            
-            const targetImage = gridItem.querySelector('img');
-            if (targetImage) {
-                sourceCell.appendChild(targetImage);
-            }
-            gridItem.appendChild(draggedImage);
-            
-            const sourceRowIndex = Math.floor(Array.from(sourceCell.parentNode.children).indexOf(sourceCell) / currentGridData[0].length);
-            const sourceColIndex = Array.from(sourceCell.parentNode.children).indexOf(sourceCell) % currentGridData[0].length;
-            
-            const targetRowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / currentGridData[0].length);
-            const targetColIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % currentGridData[0].length;
-            
-            const temp = currentGridData[sourceRowIndex][sourceColIndex];
-            currentGridData[sourceRowIndex][sourceColIndex] = currentGridData[targetRowIndex][targetColIndex];
-            currentGridData[targetRowIndex][targetColIndex] = temp;
-            
-            draggedImage = null;
-            sourceCell = null;
+                gridItem.classList.remove('highlight-cell');
+
+                const targetImage = gridItem.querySelector('img');
+                if (targetImage) {
+                    sourceCell.appendChild(targetImage);
+                }
+                gridItem.appendChild(draggedImage);
+
+                const sourceRowIndex = Math.floor(Array.from(sourceCell.parentNode.children).indexOf(sourceCell) / currentGridData[0].length);
+                const sourceColIndex = Array.from(sourceCell.parentNode.children).indexOf(sourceCell) % currentGridData[0].length;
+
+                const targetRowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / currentGridData[0].length);
+                const targetColIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % currentGridData[0].length;
+
+                const temp = currentGridData[sourceRowIndex][sourceColIndex];
+                currentGridData[sourceRowIndex][sourceColIndex] = currentGridData[targetRowIndex][targetColIndex];
+                currentGridData[targetRowIndex][targetColIndex] = temp;
+
+                draggedImage = null;
+                sourceCell = null;
             }
             
             if (draggedImage && draggedImage.classList.contains('card-image-search')) {
-            console.log('search result');
-            draggedImage.className = 'card-image';
-            gridItem.innerHTML = '';
-            gridItem.appendChild(draggedImage);
-            
-            const targetRowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / currentGridData[0].length);
-            const targetColIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % currentGridData[0].length;
-            
-            currentGridData[targetRowIndex][targetColIndex] = earlierCardObject;
-            console.log(gridData);
-            console.log(secondGridData);
-            gridItem.classList.remove('highlight-cell');
-            draggedImage = null;
-            sourceCell = null;
+                draggedImage.className = 'card-image';
+                gridItem.innerHTML = '';
+                gridItem.appendChild(draggedImage);
+
+                const targetRowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / currentGridData[0].length);
+                const targetColIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % currentGridData[0].length;
+
+                currentGridData[targetRowIndex][targetColIndex] = earlierCardObject;
+                console.log(gridData);
+                console.log(secondGridData);
+                gridItem.classList.remove('highlight-cell');
+                draggedImage = null;
+                sourceCell = null;
             }
-            };
-            
-            
-            gridItem.ondragend = () => {
+        };
+
+
+        gridItem.ondragend = () => {
             document.querySelectorAll('.grid-item').forEach((item) => item.classList.remove('highlight-cell'));
             draggedImage = null;
             sourceCell = null;
+        };
+    });
+}
+
+function closeAllOverlays() {
+    closePopup(); 
+    closeLoadPopup();
+    closeSavePopup();
+    closeSidebar(); 
+    closeListOverlay();
+}
+
+function closeLoadPopup() {
+    document.getElementById('loadOverlay').style.display = 'none';
+}
+
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('mainContainer').style.marginLeft = '0'; 
+    document.getElementById('saveButton').style.display = 'inline-block'; 
+    document.getElementById('loadButton').style.display = 'inline-block'; 
+    document.getElementById('changeGridButton').style.display = 'inline-block'; 
+    document.getElementById('gearButton').style.display = 'inline-block'; 
+}
+
+function openPopup() {
+    closeSidebar(); 
+    previousRows = parseInt(document.getElementById('rows').value);
+    previousColumns = parseInt(document.getElementById('columns').value);
+    previousGapSize = parseInt(document.getElementById('gap').value);
+    console.log(previousRows)
+    document.getElementById('overlay').style.display = 'flex'; 
+}
+
+function closePopupNoModifications() {
+    document.getElementById('rows').value = previousRows;
+    document.getElementById('columns').value = previousColumns;
+    document.getElementById('gap').value = previousGapSize;
+    document.getElementById('overlay').style.display = 'none'; 
+}
+
+function closePopup() {
+    document.getElementById('overlay').style.display = 'none'; 
+}
+
+function closeSidebar() {
+    const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
+    if (previousSelectedCell) {
+        previousSelectedCell.classList.remove('selected-cell'); 
+    }
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('mainContainer').style.marginLeft = '0'; 
+    selectedCell = null;
+
+    document.getElementById('saveButton').style.display = 'inline-block'; 
+    document.getElementById('loadButton').style.display = 'inline-block'; 
+    document.getElementById('changeGridButton').style.display = 'inline-block'; 
+}
+
+function updateSecondGridDisplay(secondGridData, gap) {
+    const secondGridContainer = document.getElementById('secondGrid');
+    secondGridContainer.innerHTML = ''; 
+    secondGridContainer.style.gridTemplateColumns = `repeat(${secondGridData[0].length}, 1fr)`;
+    secondGridContainer.style.gap = `${gap}px`;
+
+    for (let r = 0; r < secondGridData.length; r++) {
+        for (let c = 0; c < secondGridData[r].length; c++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.onclick = function () {
+                openSidebar(gridItem, 'secondGrid'); 
             };
-            });
-            }
             
-            function closeAllOverlays() {
-            closePopup(); 
-            closeLoadPopup();
-            closeSavePopup();
-            closeSidebar(); 
-            closeListOverlay();
-            }
-            
-            function closeLoadPopup() {
-            document.getElementById('loadOverlay').style.display = 'none';
-            }
-            
-            
-            function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('mainContainer').style.marginLeft = '0'; 
-            document.getElementById('saveButton').style.display = 'inline-block'; 
-            document.getElementById('loadButton').style.display = 'inline-block'; 
-            document.getElementById('changeGridButton').style.display = 'inline-block'; 
-            document.getElementById('gearButton').style.display = 'inline-block'; 
-            }
-            
-            function openPopup() {
-            closeSidebar(); 
-            previousRows = parseInt(document.getElementById('rows').value);
-            previousColumns = parseInt(document.getElementById('columns').value);
-            previousGapSize = parseInt(document.getElementById('gap').value);
-            console.log(previousRows)
-            document.getElementById('overlay').style.display = 'flex'; 
-            }
-            
-            function closePopupNoModifications() {
-            document.getElementById('rows').value = previousRows;
-            document.getElementById('columns').value = previousColumns;
-            document.getElementById('gap').value = previousGapSize;
-            document.getElementById('overlay').style.display = 'none'; 
-            }
-            
-            function closePopup() {
-            document.getElementById('overlay').style.display = 'none'; 
-            }
-            
-            function closeSidebar() {
-            const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
-            if (previousSelectedCell) {
-            previousSelectedCell.classList.remove('selected-cell'); 
-            }
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('mainContainer').style.marginLeft = '0'; 
-            selectedCell = null;
-            
-            document.getElementById('saveButton').style.display = 'inline-block'; 
-            document.getElementById('loadButton').style.display = 'inline-block'; 
-            document.getElementById('changeGridButton').style.display = 'inline-block'; 
-            }
-            
-            function updateSecondGridDisplay(secondGridData, gap) {
-            const secondGridContainer = document.getElementById('secondGrid');
-            secondGridContainer.innerHTML = ''; 
-            secondGridContainer.style.gridTemplateColumns = `repeat(${secondGridData[0].length}, 1fr)`;
-            secondGridContainer.style.gap = `${gap}px`;
-            
-            for (let r = 0; r < secondGridData.length; r++) {
-            for (let c = 0; c < secondGridData[r].length; c++) {
-                const gridItem = document.createElement('div');
-                gridItem.className = 'grid-item';
-                gridItem.onclick = function () {
-                    openSidebar(gridItem, 'secondGrid'); 
+            if (secondGridData[r][c]) {
+                const imgElement = document.createElement('img');
+                imgElement.src = secondGridData[r][c].imageUrl;
+                imgElement.alt = secondGridData[r][c].name;
+                imgElement.className = 'card-image';
+                gridItem.appendChild(imgElement);
+
+                const hoverButton = document.createElement('button');
+                hoverButton.className = 'hover-button';
+                hoverButton.innerText = '...';
+
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                dropdownMenu.style.display = 'none'; 
+
+                const deleteOption = document.createElement('div');
+                deleteOption.innerText = 'Delete Card';
+                deleteOption.className = 'dropdown-item';
+                deleteOption.onclick = function() {
+                    deleteCardFromGrid(gridItem, r, c, secondGrid);
+                    closeDropdownMenu(dropdownMenu);
                 };
-            
-                if (secondGridData[r][c]) {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = secondGridData[r][c].imageUrl;
-                    imgElement.alt = secondGridData[r][c].name;
-                    imgElement.className = 'card-image';
-                    gridItem.appendChild(imgElement);
-            
-                    const hoverButton = document.createElement('button');
-                    hoverButton.className = 'hover-button';
-                    hoverButton.innerText = '...';
-            
-                    const dropdownMenu = document.createElement('div');
-                    dropdownMenu.className = 'dropdown-menu';
-                    dropdownMenu.style.display = 'none'; 
-            
-                    const deleteOption = document.createElement('div');
-                    deleteOption.innerText = 'Delete Card';
-                    deleteOption.className = 'dropdown-item';
-                    deleteOption.onclick = function() {
-                        deleteCardFromGrid(gridItem, r, c, secondGrid);
-                        closeDropdownMenu(dropdownMenu);
-                    };
-                    dropdownMenu.appendChild(deleteOption);
-            
-                    gridItem.appendChild(dropdownMenu);
-                    hoverButton.onclick = (e) => {
-                        e.stopPropagation();  
-                        toggleDropdownMenu(dropdownMenu); 
-                    };
-                    gridItem.appendChild(hoverButton);
-                }
-            
-                secondGridContainer.appendChild(gridItem);
-            }
-            enableDragAndDrop();
-            }
-            }
-            
-            
-            function generateGrid() {
-            const rows = parseInt(document.getElementById('rows').value);
-            const columns = parseInt(document.getElementById('columns').value);
-            const gap = parseInt(document.getElementById('gap').value);
-            const container = document.querySelector('.container');
-            
-            if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
-            alert("Please enter valid positive numbers for rows, columns, and gap.");
-            return;
-            }
-            
-            const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
-            gridData.length = 0;
-            newGridData.forEach(row => gridData.push(row));
-            allPages.push(gridData);
-            updateGridDisplay(gap);
-            
-            if (isDoubleSided) {
-            const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
-            secondGridData.length = 0;
-            newSecondGridData.forEach(row => secondGridData.push(row));
-            allSecondPages.push(secondGridData);
-            updateSecondGridDisplay(secondGridData, gap);
-            secondGrid.style.marginLeft = '20px';
-            console.log('checked');
-            } else {
-            document.getElementById('secondGrid').innerHTML = '';
-            secondGrid.style.marginLeft = '0px';
-            }
-            
-            closePopup();
-            }
-            
-            function updateGridDisplay(gap) {
-            const gridContainer = document.getElementById('grid');
-            gridContainer.innerHTML = ''; 
-            gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`;
-            gridContainer.style.gap = `${gap}px`;
-            
-            for (let r = 0; r < gridData.length; r++) {
-            for (let c = 0; c < gridData[r].length; c++) {
-                const gridItem = document.createElement('div');
-                gridItem.className = 'grid-item';
-                gridItem.onclick = function () {
-                    openSidebar(gridItem, 'grid');
+                dropdownMenu.appendChild(deleteOption);
+
+                gridItem.appendChild(dropdownMenu);
+                hoverButton.onclick = (e) => {
+                    e.stopPropagation();  
+                    toggleDropdownMenu(dropdownMenu); 
                 };
-            
-                if (gridData[r][c]) {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = gridData[r][c].imageUrl;
-                    imgElement.alt = gridData[r][c].name;
-                    imgElement.className = 'card-image';
-                    gridItem.appendChild(imgElement);
-            
-                    const hoverButton = document.createElement('button');
-                    hoverButton.className = 'hover-button';
-                    hoverButton.innerText = '...';
-            
-                    const dropdownMenu = document.createElement('div');
-                    dropdownMenu.className = 'dropdown-menu';
-                    dropdownMenu.style.display = 'none';  
-            
-                    const deleteOption = document.createElement('div');
-                    deleteOption.innerText = 'Delete Card';
-                    deleteOption.className = 'dropdown-item';
-                    deleteOption.onclick = function() {
-                        deleteCardFromGrid(gridItem, r, c, 'grid'); 
-                        closeDropdownMenu(dropdownMenu);
-                    };
-                    dropdownMenu.appendChild(deleteOption);
-            
-                    gridItem.appendChild(dropdownMenu);
-            
-                    hoverButton.onclick = (e) => {
-                        e.stopPropagation(); 
-                        toggleDropdownMenu(dropdownMenu); 
-                    };
-                    gridItem.appendChild(hoverButton);
-                }
-            
-                gridContainer.appendChild(gridItem);
-            }
-            }
-            enableDragAndDrop();
-            updateGridInfo();
+                gridItem.appendChild(hoverButton);
             }
             
-            function updateGrid() {
-            const rows = parseInt(document.getElementById('rows').value);
-            const columns = parseInt(document.getElementById('columns').value);
-            const gap = parseInt(document.getElementById('gap').value);
+            secondGridContainer.appendChild(gridItem);
+        }
+        enableDragAndDrop();
+    }
+}
+
+
+function generateGrid() {
+    const rows = parseInt(document.getElementById('rows').value);
+    const columns = parseInt(document.getElementById('columns').value);
+    const gap = parseInt(document.getElementById('gap').value);
+    const container = document.querySelector('.container');
+
+    if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
+        alert("Please enter valid positive numbers for rows, columns, and gap.");
+        return;
+    }
+
+    const newGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+    gridData.length = 0;
+    newGridData.forEach(row => gridData.push(row));
+    allPages.push(gridData);
+    updateGridDisplay(gap);
+
+    if (isDoubleSided) {
+        const newSecondGridData = Array.from({ length: rows }, () => Array(columns).fill(null));
+        secondGridData.length = 0;
+        newSecondGridData.forEach(row => secondGridData.push(row));
+        allSecondPages.push(secondGridData);
+        updateSecondGridDisplay(secondGridData, gap);
+        secondGrid.style.marginLeft = '20px';
+        console.log('checked');
+    } else {
+        document.getElementById('secondGrid').innerHTML = '';
+        secondGrid.style.marginLeft = '0px';
+    }
+
+    closePopup();
+}
+
+function updateGridDisplay(gap) {
+    const gridContainer = document.getElementById('grid');
+    gridContainer.innerHTML = ''; 
+    gridContainer.style.gridTemplateColumns = `repeat(${gridData[0].length}, 1fr)`;
+    gridContainer.style.gap = `${gap}px`;
+
+    for (let r = 0; r < gridData.length; r++) {
+        for (let c = 0; c < gridData[r].length; c++) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.onclick = function () {
+                openSidebar(gridItem, 'grid');
+            };
             
-            if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
-            alert("Please enter valid positive numbers for rows, columns, and gap.");
-            return;
+            if (gridData[r][c]) {
+                const imgElement = document.createElement('img');
+                imgElement.src = gridData[r][c].imageUrl;
+                imgElement.alt = gridData[r][c].name;
+                imgElement.className = 'card-image';
+                gridItem.appendChild(imgElement);
+
+                const hoverButton = document.createElement('button');
+                hoverButton.className = 'hover-button';
+                hoverButton.innerText = '...';
+
+                const dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                dropdownMenu.style.display = 'none';  
+
+                const deleteOption = document.createElement('div');
+                deleteOption.innerText = 'Delete Card';
+                deleteOption.className = 'dropdown-item';
+                deleteOption.onclick = function() {
+                    deleteCardFromGrid(gridItem, r, c, 'grid'); 
+                    closeDropdownMenu(dropdownMenu);
+                };
+                dropdownMenu.appendChild(deleteOption);
+
+                gridItem.appendChild(dropdownMenu);
+
+                hoverButton.onclick = (e) => {
+                    e.stopPropagation(); 
+                    toggleDropdownMenu(dropdownMenu); 
+                };
+                gridItem.appendChild(hoverButton);
             }
             
-            const newGridData = Array.from({ length: rows }, (_, r) => 
-            Array.from({ length: columns }, (_, c) => (gridData[r]?.[c] || null))
+            gridContainer.appendChild(gridItem);
+        }
+    }
+    enableDragAndDrop();
+    updateGridInfo();
+}
+
+function updateGrid() {
+    const rows = parseInt(document.getElementById('rows').value);
+    const columns = parseInt(document.getElementById('columns').value);
+    const gap = parseInt(document.getElementById('gap').value);
+
+    if (rows < 1 || columns < 1 || gap < 0 || isNaN(rows) || isNaN(columns) || isNaN(gap)) {
+        alert("Please enter valid positive numbers for rows, columns, and gap.");
+        return;
+    }
+
+    const newGridData = Array.from({ length: rows }, (_, r) => 
+        Array.from({ length: columns }, (_, c) => (gridData[r]?.[c] || null))
+        );
+    gridData.length = 0;
+    newGridData.forEach(row => gridData.push(row));
+
+    updateGridDisplay(gap);
+
+    if (document.getElementById('doubleSidedCheckbox').checked) {
+        const newSecondGridData = Array.from({ length: rows }, (_, r) => 
+            Array.from({ length: columns }, (_, c) => (secondGridData[r]?.[c] || null))
             );
-            gridData.length = 0;
-            newGridData.forEach(row => gridData.push(row));
-            
-            updateGridDisplay(gap);
-            
-            if (document.getElementById('doubleSidedCheckbox').checked) {
-            const newSecondGridData = Array.from({ length: rows }, (_, r) => 
-                Array.from({ length: columns }, (_, c) => (secondGridData[r]?.[c] || null))
-                );
-            secondGridData.length = 0;
-            newSecondGridData.forEach(row => secondGridData.push(row));
-            updateSecondGridDisplay(secondGridData, gap);
-            } else {
-            allSecondPages = [];
-            document.getElementById('secondGrid').innerHTML = '';
-            }
-            
-            gapSize = gap; 
-            closePopup();
-            }
-            
-            function openSidebar(gridItem, gridIdentifier) {
-            const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
-            if (previousSelectedCell) {
-            previousSelectedCell.classList.remove('selected-cell');
-            }
-            
-            gridItem.classList.add('selected-cell'); 
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.add('open'); 
-            document.getElementById('mainContainer').style.marginLeft = '50%'; 
-            selectedCell = gridItem; 
-            selectedGrid = gridIdentifier;
-            }
-            
-            
-            
-            function searchName() {
-            const searchInput = document.getElementById('searchInput').value; 
-            const url = `https://api.pokemontcg.io/v2/cards?q=name:${searchInput}`; 
-            
-            fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Api-Key': '29cb7c82-278a-4569-a6c7-c4854ab76da4'
-            }
-            })
-            .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-            })
-            .then(data => {
-            displaySearchResults(data); 
-            })
-            .catch(error => {
-            console.error('Error fetching data:', error);
-            });
-            }
-            
-            function displaySearchResults(data) {
-            const searchResults = document.getElementById('searchResults');
-            searchResults.innerHTML = ''; 
-            
-            if (data.data && data.data.length > 0) {
-            data.data.forEach(card => {
-                const cardImg = document.createElement('img');
-                cardImg.src = card.images.small; 
-                cardImg.alt = card.name;
-                cardImg.className = 'card-image-search';
-                cardImg.draggable = true;
-                cardImg.onclick = function() {
-                    addCardToGrid(card, selectedGrid); 
+        secondGridData.length = 0;
+        newSecondGridData.forEach(row => secondGridData.push(row));
+        updateSecondGridDisplay(secondGridData, gap);
+    } else {
+        allSecondPages = [];
+        document.getElementById('secondGrid').innerHTML = '';
+    }
+
+    gapSize = gap; 
+    closePopup();
+}
+
+function openSidebar(gridItem, gridIdentifier) {
+    const previousSelectedCell = document.querySelector('.grid-item.selected-cell');
+    if (gridItem.classList.contains('selected-cell')) {
+        closeSidebar();
+        return;
+    }
+    if (previousSelectedCell) {
+        previousSelectedCell.classList.remove('selected-cell');
+    }
+
+    gridItem.classList.add('selected-cell'); 
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.add('open'); 
+    document.getElementById('mainContainer').style.marginLeft = '50%'; 
+    selectedCell = gridItem; 
+    selectedGrid = gridIdentifier;
+}
+
+
+
+function searchName() {
+    const searchInput = document.getElementById('searchInput').value; 
+    const url = `https://api.pokemontcg.io/v2/cards?q=name:${searchInput}`; 
+    const selectElement = document.getElementById('listDisplayDropdown');
+    selectElement.value = "";
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Key': '29cb7c82-278a-4569-a6c7-c4854ab76da4'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        displaySearchResults(data); 
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+
+function displaySearchResults(data) {
+    const searchResults = document.getElementById('searchResults');
+    searchResults.innerHTML = ''; 
+
+    if (data.data && data.data.length > 0) {
+        data.data.forEach(card => {
+            const cardImg = document.createElement('img');
+            cardImg.src = card.images.small; 
+            cardImg.alt = card.name;
+            cardImg.className = 'card-image-search';
+            cardImg.draggable = true;
+            cardImg.onclick = function() {
+                addCardToGrid(card, selectedGrid); 
+            };
+            cardImg.addEventListener('dragstart', function(e) {
+                listCardDragged = true;
+                draggedImage = cardImg.cloneNode(true);
+                earlierCardObject = {
+                    name: card.name,
+                    imageUrl: card.images.small
                 };
-                cardImg.addEventListener('dragstart', function(e) {
-                    draggedImage = cardImg.cloneNode(true);
-                    earlierCardObject = {
-                        name: card.name,
-                        imageUrl: card.images.small
-                    };
-                });
-                searchResults.appendChild(cardImg); 
             });
-            } else {
-            searchResults.innerHTML = '<p>No results found.</p>'; 
-            }
-            }
-            
-            
-            function addCardToGrid(card, gridIdentifier) {
-            if (selectedCell) {
-            const gridItem = selectedCell; 
-            gridItem.innerHTML = ''; 
-            const imgElement = document.createElement('img');
+            searchResults.appendChild(cardImg); 
+        });
+    } else {
+        searchResults.innerHTML = '<p>No results found.</p>'; 
+    }
+}
+
+
+function addCardToGrid(card, gridIdentifier) {
+    if (selectedCell) {
+        const gridItem = selectedCell; 
+        gridItem.innerHTML = ''; 
+        const imgElement = document.createElement('img');
+        if (card.images && card.images.small) {
             imgElement.src = card.images.small; 
-            imgElement.alt = card.name;
-            imgElement.className = 'card-image'; 
-            gridItem.appendChild(imgElement); 
+        }
+        if (card.imageUrl) {
+            imgElement.src = card.imageUrl; 
+        }
+        imgElement.alt = card.name;
+        imgElement.className = 'card-image'; 
+        gridItem.appendChild(imgElement); 
+
+        const hoverButton = document.createElement('button');
+        hoverButton.className = 'hover-button';
+        hoverButton.innerText = '...';
+
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = 'dropdown-menu';
+        dropdownMenu.style.display = 'none'; 
+
+        const deleteOption = document.createElement('div');
+        deleteOption.innerText = 'Delete Card';
+        deleteOption.className = 'dropdown-item';
+        deleteOption.onclick = function() {
+            deleteCardFromGrid(gridItem, rowIndex, colIndex, gridIdentifier);
+            closeDropdownMenu(dropdownMenu);
+        };
+        dropdownMenu.appendChild(deleteOption);
+
+        gridItem.appendChild(dropdownMenu);
+
+        hoverButton.onclick = function(e) {
+            e.stopPropagation(); 
+            toggleDropdownMenu(dropdownMenu); 
             
-            const hoverButton = document.createElement('button');
-            hoverButton.className = 'hover-button';
-            hoverButton.innerText = '...';
+        };
+        gridItem.appendChild(hoverButton);
+
+        const rowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length); 
+        const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; 
+
+        if (gridIdentifier === 'secondGrid') {
+            secondGridData[rowIndex][colIndex] = { name: card.name, imageUrl: imgElement.src }; 
+        } else {
+            gridData[rowIndex][colIndex] = { name: card.name, imageUrl: imgElement.src }; 
+        }
+
+        gridItem.classList.remove('selected-cell'); 
+        checkGridState(); 
+    }
+}
+
+function toggleDropdownMenu(menu) {
+    const allMenus = document.querySelectorAll('.dropdown-menu');
+    allMenus.forEach(m => {
+        if (m !== menu) m.style.display = 'none';  
+    });
+    menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';  
+}
+
+function closeDropdownMenu(menu) {
+    menu.style.display = 'none'; 
+}
+
+function deleteCardFromGrid(gridItem, rowIndex, colIndex, gridIdentifier) {
+    if (gridIdentifier === 'secondGrid') {
+        secondGridData[rowIndex][colIndex] = null; 
+        document.getElementById('secondGrid').children[rowIndex * gridData[0].length + colIndex].innerHTML = ''; 
+    } else {
+        gridItem.innerHTML = ''; 
+    }
+    checkGridState(); 
+}
+
+function checkGridState() {
+    const saveButton = document.getElementById('saveButton');
+    const loadButton = document.getElementById('loadButton');
+    const changeGridButton = document.getElementById('changeGridButton');
+
+    if (gridData.length > 0) {
+        saveButton.classList.remove('hidden'); 
+        loadButton.classList.remove('hidden'); 
+        changeGridButton.classList.remove('hidden'); 
+    } else {
+        saveButton.classList.add('hidden');
+        loadButton.classList.add('hidden');
+    }
+}
+
+function saveGrid() {
+    closeSidebar();
+    showSavePopup(); 
+}
+
+function loadGrid() {
+    closeSidebar();
+    showLoadPopup(); 
+}
+
+function showSavePopup() {
+    const savedGridsList = document.getElementById('savedGridsList');
+    savedGridsList.innerHTML = ''; 
+
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('savedGrid')) { 
+            const gridContainer = document.createElement('div');
+            gridContainer.style.display = 'flex';
+            gridContainer.style.justifyContent = 'space-between';
+            gridContainer.style.alignItems = 'center';
             
-            const dropdownMenu = document.createElement('div');
-            dropdownMenu.className = 'dropdown-menu';
-            dropdownMenu.style.display = 'none'; 
-            
-            const deleteOption = document.createElement('div');
-            deleteOption.innerText = 'Delete Card';
-            deleteOption.className = 'dropdown-item';
-            deleteOption.onclick = function() {
-                deleteCardFromGrid(gridItem, rowIndex, colIndex, gridIdentifier);
-                closeDropdownMenu(dropdownMenu);
+            const saveButton = document.createElement('button');
+            saveButton.textContent = key;
+            saveButton.onclick = function () {
+                const gridJSON = JSON.stringify({
+                    data: gridData,
+                    secondData: secondGridData,
+                    isDoubleSided: document.getElementById('doubleSidedCheckbox').checked,
+                    gapSize: parseInt(document.getElementById('gap').value)
+                });
+                localStorage.setItem(key, gridJSON);
+                alert('Grid saved!');
+                closeSavePopup();
             };
-            dropdownMenu.appendChild(deleteOption);
             
-            gridItem.appendChild(dropdownMenu);
-            
-            hoverButton.onclick = function(e) {
-                e.stopPropagation(); 
-                toggleDropdownMenu(dropdownMenu); 
-            
+            loadState = false;
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete'; 
+            deleteButton.onclick = function () {
+                deleteSavedGrid(key, loadState); 
             };
-            gridItem.appendChild(hoverButton);
             
-            const rowIndex = Math.floor(Array.from(gridItem.parentNode.children).indexOf(gridItem) / gridData[0].length); 
-            const colIndex = Array.from(gridItem.parentNode.children).indexOf(gridItem) % gridData[0].length; 
+            gridContainer.appendChild(saveButton); 
+            gridContainer.appendChild(deleteButton); 
+            savedGridsList.appendChild(gridContainer); 
+        }
+    });
+
+    document.getElementById('saveOverlay').style.display = 'flex'; 
+    updateGridInfo();
+}
+
+function showLoadPopup() {
+    const savedGridsList = document.getElementById('loadedSavedGridsList');
+    savedGridsList.innerHTML = ''; 
+
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('savedGrid')) { 
+            const gridContainer = document.createElement('div');
+            gridContainer.style.display = 'flex';
+            gridContainer.style.justifyContent = 'space-between';
+            gridContainer.style.alignItems = 'center';
             
-            if (gridIdentifier === 'secondGrid') {
-                secondGridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
-            } else {
-                gridData[rowIndex][colIndex] = { name: card.name, imageUrl: card.images.small }; 
-            }
+            const loadButton = document.createElement('button');
+            loadButton.textContent = key;
+            loadButton.onclick = function () {
+                loadSavedGrid(key); 
+            };
             
-            gridItem.classList.remove('selected-cell'); 
-            checkGridState(); 
-            }
-            }
+            loadState = true;
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete'; 
+            deleteButton.onclick = function () {
+                deleteSavedGrid(key, loadState); 
+            };
             
-            function toggleDropdownMenu(menu) {
-            const allMenus = document.querySelectorAll('.dropdown-menu');
-            allMenus.forEach(m => {
-            if (m !== menu) m.style.display = 'none';  
-            });
-            menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';  
-            }
+            console.log('loaded' + key)
             
-            function closeDropdownMenu(menu) {
-            menu.style.display = 'none'; 
-            }
-            
-            function deleteCardFromGrid(gridItem, rowIndex, colIndex, gridIdentifier) {
-            if (gridIdentifier === 'secondGrid') {
-            secondGridData[rowIndex][colIndex] = null; 
-            document.getElementById('secondGrid').children[rowIndex * gridData[0].length + colIndex].innerHTML = ''; 
-            } else {
-            gridItem.innerHTML = ''; 
-            }
-            checkGridState(); 
-            }
-            
-            function checkGridState() {
-            const saveButton = document.getElementById('saveButton');
-            const loadButton = document.getElementById('loadButton');
-            const changeGridButton = document.getElementById('changeGridButton');
-            
-            if (gridData.length > 0) {
-            saveButton.classList.remove('hidden'); 
-            loadButton.classList.remove('hidden'); 
-            changeGridButton.classList.remove('hidden'); 
-            } else {
-            saveButton.classList.add('hidden');
-            loadButton.classList.add('hidden');
-            }
-            }
-            
-            function saveGrid() {
-            closeSidebar();
-            showSavePopup(); 
-            }
-            
-            function loadGrid() {
-            closeSidebar();
-            showLoadPopup(); 
-            }
-            
-            function showSavePopup() {
-            const savedGridsList = document.getElementById('savedGridsList');
-            savedGridsList.innerHTML = ''; 
-            
-            Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('savedGrid')) { 
-                const gridContainer = document.createElement('div');
-                gridContainer.style.display = 'flex';
-                gridContainer.style.justifyContent = 'space-between';
-                gridContainer.style.alignItems = 'center';
-            
-                const saveButton = document.createElement('button');
-                saveButton.textContent = key;
-                saveButton.onclick = function () {
-                    const gridJSON = JSON.stringify({
-                        data: gridData,
-                        secondData: secondGridData,
-                        isDoubleSided: document.getElementById('doubleSidedCheckbox').checked,
-                        gapSize: parseInt(document.getElementById('gap').value)
-                    });
-                    localStorage.setItem(key, gridJSON);
-                    alert('Grid saved!');
-                    closeSavePopup();
-                };
-            
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete'; 
-                deleteButton.onclick = function () {
-                    deleteSavedGrid(key); 
-                };
-            
-                gridContainer.appendChild(saveButton); 
-                gridContainer.appendChild(deleteButton); 
-                savedGridsList.appendChild(gridContainer); 
-            }
-            });
-            
-            document.getElementById('saveOverlay').style.display = 'flex'; 
-            updateGridInfo();
-            }
-            
-            function showLoadPopup() {
-            const savedGridsList = document.getElementById('loadedSavedGridsList');
-            savedGridsList.innerHTML = ''; 
-            
-            Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('savedGrid')) { 
-                const gridContainer = document.createElement('div');
-                gridContainer.style.display = 'flex';
-                gridContainer.style.justifyContent = 'space-between';
-                gridContainer.style.alignItems = 'center';
-            
-                const loadButton = document.createElement('button');
-                loadButton.textContent = key;
-                loadButton.onclick = function () {
-                    loadSavedGrid(key); 
-                };
-            
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete'; 
-                deleteButton.onclick = function () {
-                    deleteSavedGrid(key); 
-                };
-            
-                console.log('loaded' + key)
-            
-                gridContainer.appendChild(loadButton); 
-                gridContainer.appendChild(deleteButton); 
-                savedGridsList.appendChild(gridContainer); 
-            }
-            });
-            
-            document.getElementById('loadOverlay').style.display = 'flex'; 
-            updateGridInfo();
-            }
-            
-            function deleteSavedGrid(gridName) {
-            if (confirm(`Are you sure you want to delete "${gridName}"?`)) {
-            localStorage.removeItem(gridName); 
-            showLoadPopup(); 
-            alert(`Grid "${gridName}" deleted!`);
-            }
-            }
-            
-            function loadSavedGrid(gridName) {
-            const gridJSON = localStorage.getItem(gridName);
-            if (!gridJSON) {
-            alert('Error loading grid!');
-            return;
-            }
-            
-            const savedData = JSON.parse(gridJSON);
-            
-            gridData.length = 0;
-            savedData.data.forEach(row => gridData.push(row));
-            updateGridDisplay(savedData.gapSize);
-            
-            if (savedData.isDoubleSided && savedData.secondData) {
-            secondGridData.length = 0;
-            savedData.secondData.forEach(row => secondGridData.push(row));
-            allSecondPages = [secondGridData];
-            updateSecondGridDisplay(secondGridData, savedData.gapSize);
-            document.getElementById('doubleSidedCheckbox').checked = true;
-            } else {
-            document.getElementById('doubleSidedCheckbox').checked = false;
-            document.getElementById('secondGrid').innerHTML = '';
-            }
-            
-            document.getElementById('gap').value = savedData.gapSize;
-            
-            closeLoadPopup();
-            alert('Grid loaded!');
-            }
-            
-            
-            function closeLoadPopup() {
-            document.getElementById('loadOverlay').style.display = 'none';
-            }
-            
-            function closeSavePopup() {
-            document.getElementById('saveOverlay').style.display = 'none';
-            }
-            
-            function saveNewPopup() {
-            const gridName = prompt('Enter a name for the grid:');
-            
-            if (!gridName.trim()) {
-            alert('Grid name cannot be empty!');
-            return;
-            }
-            if (!gridName) {
-            alert('Grid name cannot be empty!');
-            return;
-            }
-            const gridJSON = JSON.stringify({
-            data: gridData,
-            secondData: secondGridData,
-            isDoubleSided: document.getElementById('doubleSidedCheckbox').checked,
-            gapSize: parseInt(document.getElementById('gap').value)
-            });
-            localStorage.setItem(`savedGrid_${gridName}`, gridJSON);
-            alert('Grid saved!');
-            }
-            
-            function initializeGrid() {
-            document.getElementById('rows').value = 3;
-            document.getElementById('columns').value = 3;
-            document.getElementById('gap').value = 5;
-            document.getElementById('doubleSidedCheckbox').checked = false;
-            generateGrid();
-            }
-            
-            function updateGridInfo() {
-            const rows = gridData.length;
-            const columns = gridData[0] ? gridData[0].length : 0;
-            
-            document.getElementById('rows').value = rows;
-            document.getElementById('columns').value = columns;
-            
-            const gap = parseInt(document.getElementById('grid').style.gap)
-            document.getElementById('gap').value = gap;
-            }
-            
-         </script>
-   </body>
+            gridContainer.appendChild(loadButton); 
+            gridContainer.appendChild(deleteButton); 
+            savedGridsList.appendChild(gridContainer); 
+        }
+    });
+
+    document.getElementById('loadOverlay').style.display = 'flex'; 
+    updateGridInfo();
+}
+
+function deleteSavedGrid(gridName, loadState) {
+    if (confirm(`Are you sure you want to delete "${gridName}"?`)) {
+        localStorage.removeItem(gridName); 
+        if (loadState) {
+            showLoadPopup();
+        } else {
+            showSavePopup();
+        }
+        alert(`Grid "${gridName}" deleted!`);
+    }
+}
+
+function loadSavedGrid(gridName) {
+    const gridJSON = localStorage.getItem(gridName);
+    if (!gridJSON) {
+        alert('Error loading grid!');
+        return;
+    }
+
+    const savedData = JSON.parse(gridJSON);
+
+    gridData.length = 0;
+    savedData.data.forEach(row => gridData.push(row));
+    updateGridDisplay(savedData.gapSize);
+
+    if (savedData.isDoubleSided && savedData.secondData) {
+        secondGridData.length = 0;
+        savedData.secondData.forEach(row => secondGridData.push(row));
+        allSecondPages = [secondGridData];
+        updateSecondGridDisplay(secondGridData, savedData.gapSize);
+        document.getElementById('doubleSidedCheckbox').checked = true;
+    } else {
+        document.getElementById('doubleSidedCheckbox').checked = false;
+        document.getElementById('secondGrid').innerHTML = '';
+    }
+
+    document.getElementById('gap').value = savedData.gapSize;
+
+    closeLoadPopup();
+    alert('Grid loaded!');
+}
+
+
+function closeLoadPopup() {
+    document.getElementById('loadOverlay').style.display = 'none';
+}
+
+function closeSavePopup() {
+    document.getElementById('saveOverlay').style.display = 'none';
+}
+
+function saveNewPopup() {
+    const gridName = prompt('Enter a name for the grid:');
+
+    if (!gridName.trim()) {
+        alert('Grid name cannot be empty!');
+        return;
+    }
+    if (!gridName) {
+        alert('Grid name cannot be empty!');
+        return;
+    }
+    const gridJSON = JSON.stringify({
+        data: gridData,
+        secondData: secondGridData,
+        isDoubleSided: document.getElementById('doubleSidedCheckbox').checked,
+        gapSize: parseInt(document.getElementById('gap').value)
+    });
+    localStorage.setItem(`savedGrid_${gridName}`, gridJSON);
+    alert('Grid saved!');
+    closeSavePopup();
+}
+
+function initializeGrid() {
+    document.getElementById('rows').value = 3;
+    document.getElementById('columns').value = 3;
+    document.getElementById('gap').value = 5;
+    document.getElementById('doubleSidedCheckbox').checked = false;
+    generateGrid();
+}
+
+function updateGridInfo() {
+    const rows = gridData.length;
+    const columns = gridData[0] ? gridData[0].length : 0;
+
+    document.getElementById('rows').value = rows;
+    document.getElementById('columns').value = columns;
+
+    const gap = parseInt(document.getElementById('grid').style.gap)
+    document.getElementById('gap').value = gap;
+}
+
+</script>
+</body>
 </html>
